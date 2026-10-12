@@ -10,5 +10,9 @@ free unless a new library earns its installation and maintenance cost. Report
 AI assistance and verification limits truthfully; don't submit fabricated
 measurements or overwrite somebody else's source attribution.
 
+With Node 20+, `node tests/studio-inputs.mjs studio/app.js` checks that actual
+editor input handlers send edited coordinates and reject invalid drafts. It
+uses a minimal DOM harness; browser interaction remains a separate check.
+
 Discuss new hardware/model families in an issue before a large implementation.
 The present packet schema intentionally rejects unmodeled fields.

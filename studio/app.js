@@ -53,6 +53,7 @@ const state = {
   imported: false,
   link: 0,
   interventionApplied: null,
+  inputDrafts: new Map(),
 };
 const selectCandidate = (index) => {
   if (state.busy) return;
@@ -230,6 +231,7 @@ async function solvePacket(job) {
 }
 async function runScene(scene = state.scene, intervention = null) {
   if (state.imported) return;
+  if (!validateSceneControls()) return;
   $("config-error").textContent = "";
   const snapshot = clone(scene);
   const job = beginJob("Generating complex IQ from the declared 3D scene…");
@@ -237,6 +239,7 @@ async function runScene(scene = state.scene, intervention = null) {
     const packet = await api("simulate", { scene: snapshot }, job);
     if (!current(job)) return;
     state.scene = snapshot;
+    state.inputDrafts.clear();
     state.measurement = packet.measurement;
     state.truth = packet.truth;
     state.result = null;
@@ -269,6 +272,7 @@ async function chooseExample(id) {
   );
   state.example = id;
   state.scene = clone(example.scene);
+  state.inputDrafts.clear();
   state.measurement = clone(example.measurement);
   state.truth = clone(example.truth);
   state.result = null;
@@ -735,6 +739,48 @@ function renderProposal() {
   );
 }
 
+function bindSceneInput(node, key, callback, type = "number") {
+  node.addEventListener("input", () => {
+    const draft = node.value;
+    if (
+      type === "number" &&
+      (draft.trim() === "" ||
+        !Number.isFinite(Number(draft)) ||
+        node.validity.badInput)
+    ) {
+      state.inputDrafts.set(key, draft);
+      node.setAttribute("aria-invalid", "true");
+      markDirty();
+      $("config-error").textContent =
+        `${key}: enter a finite number before generating.`;
+      return;
+    }
+    state.inputDrafts.delete(key);
+    node.removeAttribute("aria-invalid");
+    callback(type === "number" ? Number(draft) : draft);
+    markDirty();
+  });
+}
+function validateSceneControls() {
+  const numericFields = $("config-fields").querySelectorAll(
+    'input[type="number"]:not(:disabled)',
+  );
+  const invalid = Array.from(numericFields).find(
+    (field) =>
+      field.value.trim() === "" ||
+      !Number.isFinite(Number(field.value)) ||
+      !field.validity.valid,
+  );
+  if (!invalid) return true;
+  const label = invalid.getAttribute("aria-label") || "Numeric field";
+  const message = `${label}: enter a finite number within the displayed limits before generating.`;
+  $("config-error").textContent = message;
+  setStatus(message, "error");
+  openDialog("config-dialog");
+  invalid.focus();
+  invalid.reportValidity();
+  return false;
+}
 function input(
   label,
   value,
@@ -743,23 +789,17 @@ function input(
 ) {
   const node = el("input", {
     type,
-    value: value ?? "",
+    value: state.inputDrafts.has(label)
+      ? state.inputDrafts.get(label)
+      : (value ?? ""),
     step,
     ...(min === undefined ? {} : { min }),
     ...(max === undefined ? {} : { max }),
     disabled: state.imported || disabled,
+    ...(type === "number" ? { required: "" } : {}),
     "aria-label": label,
   });
-  node.addEventListener("change", () => {
-    if (type === "number") {
-      if (node.value === "" || !Number.isFinite(Number(node.value))) {
-        node.reportValidity();
-        return;
-      }
-      callback(Number(node.value));
-    } else callback(node.value);
-    markDirty();
-  });
+  bindSceneInput(node, label, callback, type);
   return el("label", {}, `${label}${unit ? " · " + unit : ""}`, node);
 }
 function section(title, units, ...children) {
@@ -804,19 +844,21 @@ function antennaInputs(key, title) {
       el("span", { text: `${key === "tx_m" ? "TX" : "RX"}${i + 1}` }),
     );
     point.forEach((value, j) => {
+      const label = `${title} ${i + 1}, ${["X", "Y", "Z"][j]} in meters`;
       const field = el("input", {
         type: "number",
-        value,
-        step: "0.05",
+        value: state.inputDrafts.has(label)
+          ? state.inputDrafts.get(label)
+          : value,
+        step: "any",
         min: -100,
         max: 100,
         disabled: state.imported,
-        "aria-label": `${title} ${i + 1}, ${["X", "Y", "Z"][j]} in meters`,
+        required: "",
+        "aria-label": label,
       });
-      field.addEventListener("change", () => {
-        if (field.value === "" || !Number.isFinite(Number(field.value))) return;
-        state.scene[key][i][j] = Number(field.value);
-        markDirty();
+      bindSceneInput(field, label, (coordinate) => {
+        state.scene[key][i][j] = coordinate;
       });
       row.append(field);
     });
@@ -826,7 +868,25 @@ function antennaInputs(key, title) {
         disabled: state.imported || points.length <= 1,
         "aria-label": `Remove ${title} ${i + 1}`,
         onclick: () => {
+          // Preserve invalid drafts on retained antennas when row labels shift.
+          const shiftedDrafts = [];
+          for (let rowIndex = i; rowIndex < points.length; rowIndex++) {
+            for (const axis of ["X", "Y", "Z"]) {
+              const oldLabel = `${title} ${rowIndex + 1}, ${axis} in meters`;
+              if (state.inputDrafts.has(oldLabel)) {
+                if (rowIndex > i) {
+                  shiftedDrafts.push([
+                    `${title} ${rowIndex}, ${axis} in meters`,
+                    state.inputDrafts.get(oldLabel),
+                  ]);
+                }
+                state.inputDrafts.delete(oldLabel);
+              }
+            }
+          }
           points.splice(i, 1);
+          for (const [label, draft] of shiftedDrafts)
+            state.inputDrafts.set(label, draft);
           markDirty();
           renderConfig();
         },
@@ -1255,6 +1315,7 @@ function loadSceneJSON(text) {
   const scene = data.scene || data;
   validateSceneStructure(scene);
   state.scene = clone(scene);
+  state.inputDrafts.clear();
   state.imported = false;
   state.example = null;
   markDirty();
@@ -1295,6 +1356,7 @@ async function importMeasurement(text) {
       gain_mode: measurement.gain_mode,
     };
     state.imported = true;
+    state.inputDrafts.clear();
     state.example = null;
     state.dirty = false;
     state.selected = 0;
@@ -1353,11 +1415,7 @@ for (const id of ["assumptions-button", "fit-details-button"])
   $(id).addEventListener("click", () => openDialog("assumptions-dialog"));
 $("run-button").addEventListener("click", () => runScene());
 $("config-run").addEventListener("click", () => {
-  const invalid = $("config-fields").querySelector("input:invalid");
-  if (invalid) {
-    invalid.reportValidity();
-    return;
-  }
+  if (!validateSceneControls()) return;
   $("config-dialog").close();
   runScene();
 });
@@ -1371,6 +1429,7 @@ $("reset-experiment").addEventListener("click", () => {
   if (id) chooseExample(id);
   else {
     state.scene = clone(defaultScene);
+    state.inputDrafts.clear();
     state.imported = false;
     markDirty();
     renderConfig();
@@ -1467,14 +1526,12 @@ async function initialize() {
       throw new Error("No experiment fixtures are available.");
     const select = $("example-select");
     select.replaceChildren(
-      ...state.examples
-        .slice(0, 24)
-        .map((example, i) =>
-          el("option", {
-            value: example.id,
-            text: `${String(i + 1).padStart(2, "0")} / ${example.title}`,
-          }),
-        ),
+      ...state.examples.slice(0, 24).map((example, i) =>
+        el("option", {
+          value: example.id,
+          text: `${String(i + 1).padStart(2, "0")} / ${example.title}`,
+        }),
+      ),
       el("option", {
         value: "custom",
         text: "CUSTOM / Imported or edited scene",
