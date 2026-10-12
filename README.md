@@ -117,7 +117,7 @@ All included data is locally simulated, in arbitrary IQ units.
 The local server exposes fixed operations on loopback only, validates host/origin,
 limits JSON to 2 MiB and 32 nesting levels, admits two workers and 16 connections,
 and stops workers after 25 seconds or an observed client disconnect. Search is
-bounded to 20,000 grid positions and 8,000,000 link-frequency-position evaluations.
+bounded to 20,000 grid positions and 8,000,000 coarse link-frequency-position evaluations.
 No arbitrary command, local-file path or telemetry endpoint is accepted.
 
 MIT for the original application. [Dependency notices](THIRD_PARTY_NOTICES.md).
