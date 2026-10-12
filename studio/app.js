@@ -331,7 +331,7 @@ const statusCopy = {
   },
   "model-mismatch-or-search-failure": {
     label: "FIT REFUSED",
-    title: "This model cannot explain it.",
+    title: "No compatible fit found.",
     description:
       "The best discovered fit fails the declared residual gate. Model mismatch and finite-search failure remain possible; no compatible position is claimed.",
     story: "Fit refused · investigate the model",
@@ -455,9 +455,9 @@ function renderResults() {
       metric(
         "Reduced χ²",
         selected.reduced_chi_squared === null
-          ? "No noise model"
+          ? "Not applicable"
           : number(selected.reduced_chi_squared, 3),
-        "Weighted residual divided by residual degrees of freedom. The noisy fit gate refuses above 3.",
+        "Weighted residual divided by nominal residual degrees of freedom. Not applicable for noise-free packets or insufficient degrees of freedom. The noisy fit gate refuses above 3.",
       ),
       metric(
         "Weighted residual²",
