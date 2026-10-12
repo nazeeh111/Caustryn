@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111b23" />
+    <title>Phaseglass · Radio observability studio</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111b23'/%3E%3Cpath d='M16 47V17h15c20 0 20 23 0 23H16M26 47V27h20' fill='none' stroke='%23d6f87b' stroke-width='5'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#workspace">Skip to experiment</a>
+    <header class="masthead">
+      <a class="brand" href="./" aria-label="Phaseglass home"
+        ><svg viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M8 31V9h12c15 0 15 17 0 17H8M16 31V17h17" /></svg
+        ><span>phaseglass<span class="brand-dot">.</span></span></a
+      >
+      <span class="product-label"
+        >RADIO OBSERVABILITY STUDIO <span class="version">01</span></span
+      >
+      <div class="header-actions">
+        <span class="simulation-badge"><span></span> SIMULATION ONLY</span
+        ><button class="text-button" id="assumptions-button">
+          Model & limits <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    </header>
+    <main id="workspace">
+      <section class="intro" aria-labelledby="intro-title">
+        <div>
+          <div class="eyebrow">MAKE AMBIGUITY VISIBLE</div>
+          <h1 id="intro-title">One signal. More than one place.</h1>
+          <p>
+            Generate a radio measurement, find the positions that fit, then move
+            a receiver to tell them apart.
+          </p>
+        </div>
+        <button class="data-button" id="data-button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5" /></svg
+          >Import / export
+        </button>
+      </section>
+      <section class="experiment-bar" aria-label="Experiment selection">
+        <div class="experiment-select">
+          <label for="example-select">EXPERIMENT</label
+          ><select id="example-select">
+            <option>Loading experiments…</option></select
+          ><span class="select-chevron" aria-hidden="true">⌄</span>
+        </div>
+        <p id="example-description">
+          Twelve reproducible experiments. Every signal is generated from a
+          declared scene.
+        </p>
+        <button id="configure-button" class="outline-button">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6" /></svg
+          >Edit scene
+        </button>
+        <button id="run-button" class="primary-button">
+          <span aria-hidden="true">▶</span> Generate & solve
+        </button>
+        <button id="cancel-button" class="outline-button danger" hidden>
+          Cancel
+        </button>
+      </section>
+      <div class="status-strip" role="status" aria-live="polite">
+        <span id="status-dot" class="status-dot"></span
+        ><span id="status-text">Preparing the studio…</span
+        ><span id="stale-badge" class="stale-badge" hidden
+          >SCENE EDITED · RESULT IS STALE</span
+        ><span class="packet-label" id="packet-label">NO MEASUREMENT</span>
+      </div>
+      <section class="workspace-grid">
+        <div class="scene-panel">
+          <div class="panel-top">
+            <div>
+              <span class="section-index">01</span>
+              <h2>The scene</h2>
+              <span class="unit-label">METERS</span>
+            </div>
+            <div class="scene-toggles">
+              <label class="toggle"
+                ><input id="field-toggle" type="checkbox" checked /><span
+                  >Search field</span
+                ></label
+              ><label class="toggle truth-toggle"
+                ><input id="truth-toggle" type="checkbox" /><span
+                  >Reveal truth</span
+                ></label
+              >
+            </div>
+          </div>
+          <div class="viewport" id="viewport">
+            <canvas
+              id="scene-canvas"
+              tabindex="0"
+              aria-label="Interactive 3D radio scene. Drag to orbit, scroll to zoom, arrow keys to orbit, plus or minus to zoom. Inferred candidate and antenna coordinates also appear as text."
+            ></canvas>
+            <div class="viewport-caption">
+              <span id="scene-title">A controlled radio experiment</span
+              ><span id="scene-subtitle"
+                >POINT SCATTERER · BASELINE ISOLATED</span
+              >
+            </div>
+            <div class="viewport-empty" id="viewport-empty">
+              <div class="empty-mark" aria-hidden="true">⌖</div>
+              <h3>Start with a signal.</h3>
+              <p>
+                Choose an experiment or create a scene.<br />The inverse solver
+                receives no hidden position.
+              </p>
+            </div>
+            <div class="view-controls" aria-label="3D camera controls">
+              <button
+                id="orbit-left"
+                title="Orbit left"
+                aria-label="Orbit left"
+              >
+                ↶</button
+              ><button
+                id="orbit-right"
+                title="Orbit right"
+                aria-label="Orbit right"
+              >
+                ↷</button
+              ><span></span
+              ><button id="zoom-in" title="Zoom in" aria-label="Zoom in">
+                +</button
+              ><button id="zoom-out" title="Zoom out" aria-label="Zoom out">
+                −</button
+              ><span></span
+              ><button
+                id="reset-view"
+                title="Reset view"
+                aria-label="Reset camera"
+              >
+                ⌖
+              </button>
+            </div>
+            <div class="scene-key">
+              <span><i class="key-tx"></i>TX transmitter</span
+              ><span><i class="key-rx"></i>RX receiver</span
+              ><span><i class="key-mode"></i>Compatible position</span
+              ><span id="truth-key" hidden
+                ><i class="key-truth"></i>Simulated truth</span
+              >
+            </div>
+            <div class="camera-hint">
+              DRAG TO ORBIT <span>·</span> SCROLL TO ZOOM
+            </div>
+          </div>
+          <div class="scene-foot">
+            <div class="story">
+              <span class="story-number" id="mode-count">—</span>
+              <div>
+                <strong id="story-title"
+                  >Search for compatible positions</strong
+                >
+                <p id="story-description">
+                  A good fit tells you what could explain a signal. It does not
+                  prove a unique location.
+                </p>
+              </div>
+            </div>
+            <button class="text-button" id="fit-details-button">
+              Inference contract <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+        <aside class="evidence-panel" aria-label="Inference evidence">
+          <div class="panel-top">
+            <div>
+              <span class="section-index">02</span>
+              <h2>What fits?</h2>
+            </div>
+            <span class="live-label" id="result-status">AWAITING INPUT</span>
+          </div>
+          <div class="evidence-body">
+            <div class="result-summary" id="result-summary">
+              <span class="result-kicker">BLIND INVERSE</span>
+              <h3>No hidden coordinates.</h3>
+              <p>
+                The solver sees antenna positions and complex signals. The
+                generating point is held separately.
+              </p>
+            </div>
+            <div id="candidate-list" class="candidate-list"></div>
+            <div id="diagnostics" class="diagnostics"></div>
+            <div id="truth-evaluation" class="truth-evaluation" hidden></div>
+          </div>
+          <div class="intervention-panel">
+            <div class="intervention-heading">
+              <span class="section-index">03</span>
+              <h2>Break the ambiguity</h2>
+              <span aria-hidden="true">↗</span>
+            </div>
+            <p id="intervention-description">
+              Two locations can fit the same signal. Find a receiver position
+              where their predictions diverge.
+            </p>
+            <button
+              class="intervention-button"
+              id="intervention-button"
+              disabled
+            >
+              Find a receiver move <span aria-hidden="true">→</span>
+            </button>
+            <div id="proposal" hidden></div>
+          </div>
+        </aside>
+      </section>
+      <section
+        id="signals-panel"
+        class="signals-panel"
+        aria-labelledby="signals-title"
+      >
+        <div class="signal-heading">
+          <div>
+            <span class="section-index">04</span>
+            <h2 id="signals-title">The measured signal</h2>
+            <span class="signal-explainer"
+              >Complex IQ = real and imaginary signal components</span
+            >
+          </div>
+          <label for="link-select"
+            >LINK
+            <select id="link-select" disabled>
+              <option>No measurement</option>
+            </select></label
+          >
+        </div>
+        <div class="signal-grid">
+          <div class="plot">
+            <div class="plot-title">
+              <h3>Amplitude</h3>
+              <span>ARBITRARY IQ UNITS</span>
+            </div>
+            <canvas
+              id="amplitude-canvas"
+              role="img"
+              aria-label="Measured signal amplitude versus frequency"
+            ></canvas>
+          </div>
+          <div class="plot">
+            <div class="plot-title">
+              <h3>Phase</h3>
+              <span>RADIANS · WRAPPED</span>
+            </div>
+            <canvas
+              id="phase-canvas"
+              role="img"
+              aria-label="Measured wrapped phase versus frequency"
+            ></canvas>
+          </div>
+        </div>
+        <div class="signal-footer">
+          <span id="measurement-summary">No signal generated yet</span
+          ><button id="measurement-download" class="text-button" disabled>
+            Download measurement JSON <span aria-hidden="true">↓</span>
+          </button>
+        </div>
+      </section>
+      <footer class="footer">
+        <span
+          >PHASEGLASS <span class="footer-dot">/</span> ORIGINAL OPEN-SOURCE
+          EXPERIMENT LAB</span
+        >
+        <p>
+          One idealized point. A finite search. No hardware or body-pose claims.
+        </p>
+        <button class="text-button" id="reset-experiment">
+          Reset experiment
+        </button>
+      </footer>
+    </main>
+    <dialog id="config-dialog" class="drawer" aria-labelledby="config-title">
+      <form method="dialog" class="dialog-header">
+        <div>
+          <span class="eyebrow">GENERATOR CONTROLS</span>
+          <h2 id="config-title">Design the experiment.</h2>
+        </div>
+        <button class="close-button" aria-label="Close scene editor">×</button>
+      </form>
+      <div class="drawer-body">
+        <p class="drawer-intro">
+          Editing changes the next simulation. The existing measurement remains
+          immutable until you generate a new one.
+        </p>
+        <div id="config-fields"></div>
+        <details class="advanced-json">
+          <summary>Advanced scene JSON</summary>
+          <p>
+            Full declared generator input. Apply validates JSON; the server
+            validates physical limits when run.
+          </p>
+          <textarea
+            id="scene-json"
+            spellcheck="false"
+            aria-label="Advanced scene JSON"
+          ></textarea
+          ><button id="apply-json" class="outline-button">
+            Apply JSON to editor
+          </button>
+        </details>
+        <p id="config-error" class="inline-error" role="alert"></p>
+      </div>
+      <div class="dialog-footer">
+        <span id="config-dirty">Current scene</span
+        ><button id="config-run" class="primary-button">
+          Generate & solve <span aria-hidden="true">→</span>
+        </button>
+      </div>
+    </dialog>
+    <dialog id="data-dialog" class="data-dialog" aria-labelledby="data-title">
+      <form method="dialog" class="dialog-header">
+        <div>
+          <span class="eyebrow">PORTABLE EVIDENCE</span>
+          <h2 id="data-title">Bring a signal. Take the proof.</h2>
+        </div>
+        <button class="close-button" aria-label="Close data dialog">×</button>
+      </form>
+      <div class="data-body">
+        <section>
+          <h3>Import</h3>
+          <p>
+            Load a measurement JSON for blind inference, or a scene JSON to
+            generate a new packet. No generator truth is sent to the solver.
+          </p>
+          <label class="file-drop" for="import-file"
+            ><span aria-hidden="true">↥</span><strong>Choose JSON file</strong
+            ><span>Measurement or scene · maximum 2 MB</span
+            ><input
+              id="import-file"
+              type="file"
+              accept=".json,application/json" /></label
+          ><label for="import-json" class="field-label">OR PASTE JSON</label
+          ><textarea
+            id="import-json"
+            spellcheck="false"
+            placeholder='{"schema": "blind-point-radio-v1", …}'
+          ></textarea>
+          <div class="import-buttons">
+            <button class="outline-button" id="import-scene-button">
+              Load as scene</button
+            ><button class="primary-button" id="import-measurement-button">
+              Solve measurement
+            </button>
+          </div>
+          <p id="import-error" class="inline-error" role="alert"></p>
+        </section>
+        <section class="export-section">
+          <h3>Export</h3>
+          <p>
+            Save the measured IQ and inference. The portable ZIP includes source
+            and a standalone solver for an independent rerun.
+          </p>
+          <label class="toggle"
+            ><input id="export-truth" type="checkbox" /><span
+              >Include separate simulated truth</span
+            ></label
+          ><button class="primary-button" id="export-button" disabled>
+            Download portable experiment
+            <span aria-hidden="true">↓</span></button
+          ><button class="outline-button" id="scene-download">
+            Download scene JSON <span aria-hidden="true">↓</span>
+          </button>
+          <p class="micro-note">
+            Truth is an optional, separate artifact. It is never an inverse
+            input.
+          </p>
+          <p id="export-error" class="inline-error" role="alert"></p>
+        </section>
+      </div>
+    </dialog>
+    <dialog
+      id="assumptions-dialog"
+      class="limits-dialog"
+      aria-labelledby="limits-title"
+    >
+      <form method="dialog" class="dialog-header">
+        <div>
+          <span class="eyebrow">WHAT THIS EXPERIMENT CAN SAY</span>
+          <h2 id="limits-title">A useful model. Visible limits.</h2>
+        </div>
+        <button class="close-button" aria-label="Close model limits">×</button>
+      </form>
+      <div class="limits-body">
+        <p class="limits-lead">
+          Phaseglass asks a precise question: which 3D point positions can
+          explain this simulated complex radio signal under this declared model?
+        </p>
+        <div class="equation">
+          H(f, p) = e<sup>−i 2π f (d<sub>TX</sub> + d<sub>RX</sub>) / c</sup> /
+          (d<sub>TX</sub> d<sub>RX</sub>)
+        </div>
+        <div class="limits-grid">
+          <section>
+            <span>01 / FORWARD MODEL</span>
+            <h3>One static point.</h3>
+            <p>
+              A transmitter-to-point-to-receiver path. Known antenna coordinates
+              and frequencies. Baseline-isolated signal with optional constant
+              complex gain per link. No walls, direct path, polarization,
+              diffraction or human surface.
+            </p>
+          </section>
+          <section>
+            <span>02 / BLIND INVERSE</span>
+            <h3>Truth stays outside.</h3>
+            <p>
+              The inverse receives only the packet: geometry, frequencies, IQ,
+              noise, bounds and the declared gain model. It searches a finite
+              grid and refines promising starting points. Found candidates do
+              not exhaust every possible location.
+            </p>
+          </section>
+          <section>
+            <span>03 / IDENTIFIABILITY</span>
+            <h3>Fit is not uniqueness.</h3>
+            <p>
+              Local sensitivity rank describes nearby constraints. It does not
+              rule out a distant mirror position. A narrow frequency band or
+              noisy signal can leave a family of compatible locations.
+            </p>
+          </section>
+          <section>
+            <span>04 / INTERVENTION</span>
+            <h3>Change one receiver.</h3>
+            <p>
+              A bounded search proposes a receiver coordinate to separate a
+              selected competing pair. Apply regenerates a new simulated packet
+              and reruns inference. The old observed IQ is never rewritten.
+            </p>
+          </section>
+          <section>
+            <span>05 / FALSIFICATION</span>
+            <h3>Counterexamples matter.</h3>
+            <p>
+              Extra scatterers and frequency-dependent hardware phase slopes are
+              outside the inverse model. A mismatch can refuse a fit; a
+              counterfeit phase slope can also fit well at the wrong location.
+              Reveal simulated truth to test that assumption.
+            </p>
+          </section>
+          <section>
+            <span>06 / SCALE & LIMITS</span>
+            <h3>Simulation only.</h3>
+            <p>
+              The c/B quantity is a total-path delay scale, not a generic
+              position accuracy claim. Search scores and acceptance bands are
+              model-based heuristics, not probabilities. No hardware is required
+              or supported.
+            </p>
+          </section>
+        </div>
+        <div class="resource-limits">
+          <strong>Bounded work</strong>
+          <p>
+            Up to 4 transmitters, 4 receivers, 128 frequencies, 20,000 grid
+            points and 40 local refinements. Coordinates and numeric inputs are
+            validated by the server. Long operations can be cancelled.
+          </p>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>

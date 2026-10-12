@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phaseglass"
+version = "0.1.0"
+description = "Find competing radio-scattering locations and design measurements that distinguish them"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = ["numpy>=1.26,<3", "scipy>=1.11,<2"]
+keywords = ["inverse-problems", "radio", "simulation", "observability", "experiment-design"]
+
+[project.urls]
+Repository = "https://github.com/nazeeh111/Phaseglass"
+Issues = "https://github.com/nazeeh111/Phaseglass/issues"
+
+[project.scripts]
+phaseglass = "phaseglass.cli:main"
+
+[tool.setuptools]
+packages = ["phaseglass"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+phaseglass = ["assets/**/*"]

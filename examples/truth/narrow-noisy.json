@@ -1,0 +1,33 @@
+{
+  "kind": "simulated-generator-truth-not-measurement",
+  "position_m": [
+    2.371,
+    1.137,
+    1.483
+  ],
+  "generator_only_link_gains": {
+    "real": [
+      -0.975902143719005,
+      -0.5402300908370973,
+      0.9513659639231105,
+      0.7960908617153839,
+      -0.4826814289560602,
+      0.6031469646401669
+    ],
+    "imag": [
+      0.531866215900237,
+      0.8182268497294408,
+      0.06371067915042482,
+      -0.48607500069199655,
+      0.5149373401075625,
+      -0.8723394053070787
+    ]
+  },
+  "seed": 128,
+  "noise_snr_db": 20,
+  "extra_reflector": null,
+  "phase_slope_target_m": null,
+  "bandwidth_hz": 1000000.0,
+  "total_path_delay_scale_m": 299.792458,
+  "warning": "Point-scattering simulation; no hardware capture or human pose inferred"
+}

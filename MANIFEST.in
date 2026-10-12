@@ -1,0 +1,3 @@
+include LICENSE THIRD_PARTY_NOTICES.md README.md
+recursive-include studio *.html *.css *.js *.svg
+recursive-include examples *.json

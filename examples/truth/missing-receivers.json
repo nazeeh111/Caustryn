@@ -1,0 +1,25 @@
+{
+  "kind": "simulated-generator-truth-not-measurement",
+  "position_m": [
+    2.371,
+    1.137,
+    1.483
+  ],
+  "generator_only_link_gains": {
+    "real": [
+      1.0160001382703887,
+      0.807227428123272
+    ],
+    "imag": [
+      -0.4505667373052939,
+      -0.5565317672420066
+    ]
+  },
+  "seed": 128,
+  "noise_snr_db": 35,
+  "extra_reflector": null,
+  "phase_slope_target_m": null,
+  "bandwidth_hz": 20000000.0,
+  "total_path_delay_scale_m": 14.9896229,
+  "warning": "Point-scattering simulation; no hardware capture or human pose inferred"
+}
