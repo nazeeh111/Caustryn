@@ -1,0 +1,14 @@
+{
+  "kind": "synthetic-generator-truth-not-measurement",
+  "position_m": [
+    4.127,
+    -0.863,
+    0.927
+  ],
+  "seed": 521,
+  "response_condition": "stable",
+  "noise_snr_db": 35,
+  "counterfeit_target_m": null,
+  "hardware_response_relative_pose_variation": 0.0,
+  "warning": "Original matched-model simulation with exact known geometry; no real hardware precision or coherence established."
+}

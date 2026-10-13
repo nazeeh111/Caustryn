@@ -1,0 +1,17 @@
+[
+  {
+    "id": "slope-counterfeit",
+    "title": "Stable frequency slope",
+    "file": "slope-counterfeit.json"
+  },
+  {
+    "id": "exact-counterfeit",
+    "title": "Exact counterfeit",
+    "file": "exact-counterfeit.json"
+  },
+  {
+    "id": "mirror",
+    "title": "Mirror ambiguity",
+    "file": "mirror.json"
+  }
+]

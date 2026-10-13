@@ -10,21 +10,45 @@ separates competing explanations. It makes inverse problems tangible: orbit the
 **Simulation only.** No hardware, neural checkpoint, account, cloud or paid API.
 This release models one idealized point scatterer, not a human body or room scan.
 
+## New: fit here, predict there
+
+[Explore the three recorded experiments in your browser](https://nazeeh111.github.io/Phaseglass/demo/), then open **http://127.0.0.1:6365/sweep.html** after the installation below for new calculations. The public replay is read-only; the local workshop fits your inputs. A coherent
+receiver sweep uses known antenna positions to profile a separate unknown complex
+response for every antenna pair and frequency. Fit five positions, then predict
+two entire withheld configurations with the location and gains frozen.
+
+- **Break a stable phase-slope counterfeit.** A single snapshot fits the wrong
+  simulated point; known receiver motion distinguishes it.
+- **Keep both reflections.** Coplanar geometry retains two modes, each with its
+  own unchanged held-position prediction.
+- **A wrong scene can still pass.** Deliberately changing the response can
+  counterfeit another location and pass both checks. Stable hardware response
+  remains a trusted assumption, not a conclusion from residuals.
+- **Change the packets and take the proof.** Strict training/held editors,
+  stale-result guards, cancellation, actual IQ prediction plots, optional
+  separate simulation context, and source-bearing portable reruns.
+
+[Coherent measurement contract and prior art](docs/COHERENT.md).
+All nine new cases are original simulations with exact supplied geometry. Their
+small positive errors are not physical precision or a hardware benchmark.
+
+![Actual coherent sweep: a training fit and unchanged held-position prediction](docs/coherent-studio.png)
+
 ![Actual Studio: two blind fitted locations from one simulated packet](docs/studio.png)
 
-## Try the mirror trap
+## Install and run
 
 ```sh
 git clone https://github.com/nazeeh111/Phaseglass.git
 cd Phaseglass
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install .
+python -m pip install -r requirements.lock .
 phaseglass studio
 ```
 
-Open **http://127.0.0.1:6365/**. Python 3.10+; Windows activation is
-`.venv\Scripts\activate`. NumPy and SciPy are the only runtime dependencies.
+Open **http://127.0.0.1:6365/**. Python 3.12+; Windows activation is
+`.venv\Scripts\activate`. NumPy and SciPy are the only runtime dependencies. Version 0.2 requires Python 3.12+; the older 0.1 release retains its Python 3.10 support.
 Alternatively download the wheel from [Releases](https://github.com/nazeeh111/Phaseglass/releases).
 
 1. The initial experiment returns two compatible positions with truth hidden.
@@ -60,6 +84,16 @@ phaseglass intervention examples/measurements/mirror-profiled.json --result fit.
 phaseglass export examples/measurements/mirror-profiled.json --output experiment.zip
 # Extract the ZIP into a fresh directory, install its requirements, then:
 python rerun.py --output independently-rerun.json
+```
+
+Coherent training and held observations remain independent inputs:
+
+```sh
+phaseglass sweep-solve examples/coherent/slope-counterfeit.training.json --output training-fit.json
+phaseglass sweep-evaluate examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output held-prediction.json
+phaseglass sweep-export examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output coherent-experiment.zip
+# Extract into a new folder; install requirements.lock, then run:
+python rerun.py --output independently-predicted.json
 ```
 
 `phaseglass simulate scene.json` emits `{measurement, truth}` with the two kept

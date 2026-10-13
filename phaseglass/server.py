@@ -18,7 +18,7 @@ from .io import MAX_INPUT, decode, encoded
 from .resources import resource_root
 
 OPERATIONS = {
-    "/api/" + name: name for name in ("simulate", "solve", "intervention", "export")
+    "/api/" + name: name for name in ("simulate", "solve", "intervention", "export", "sweep-solve", "sweep-evaluate", "sweep-validate", "sweep-export")
 }
 MAX_OUTPUT = 8 * 1024 * 1024
 WORKER_SECONDS = 25
@@ -130,7 +130,7 @@ class StudioServer(ThreadingHTTPServer):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "Phaseglass/0.1"
+    server_version = "Phaseglass/0.2"
 
     def setup(self):
         super().setup()
@@ -178,6 +178,11 @@ class Handler(BaseHTTPRequestHandler):
             from .io import read_json
 
             self.send(200, read_json(root / "examples" / "studio.json"))
+            return
+        if path == "/api/sweep-examples":
+            from .io import read_json
+
+            self.send(200, read_json(root / "examples" / "coherent" / "index.json"))
             return
         name = "index.html" if path == "/" else path.lstrip("/")
         # Only ship studio assets, never generic local-file access.
@@ -229,7 +234,7 @@ class Handler(BaseHTTPRequestHandler):
             if len(raw) != length:
                 raise ValueError("Incomplete request")
             result = analyze(action, decode(raw), self.connection)
-            if action == "export":
+            if action in {"export", "sweep-export"}:
                 self.send(
                     200,
                     base64.b64decode(result["zip_base64"], validate=True),
