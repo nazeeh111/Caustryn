@@ -25,7 +25,7 @@ GUIDE = """# Phaseglass portable experiment
 
 Simulation/model-conditioned evidence, not hardware sensing or pose estimation.
 
-Create a virtual environment using Python 3.10 or newer, then install:
+Create a virtual environment using Python 3.12 or newer, then install:
     python -m pip install -r requirements.txt
 Run the included original blind inverse:
     python rerun.py --output rerun-result.json
@@ -59,7 +59,7 @@ def export_zip(request):
         "result.json": encoded(result),
         "rerun.py": RUNNER.encode(),
         "README.md": GUIDE.encode(),
-        "requirements.txt": b"numpy>=1.26,<3\nscipy>=1.11,<2\n",
+        "requirements.txt": b"numpy==2.3.5\nscipy==1.18.1\n",
         "LICENSE": (root / "LICENSE").read_bytes(),
         "THIRD_PARTY_NOTICES.md": (root / "THIRD_PARTY_NOTICES.md").read_bytes(),
     }

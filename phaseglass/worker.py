@@ -12,6 +12,22 @@ def execute(request):
     action, payload = request["action"], request["payload"]
     if type(payload) is not dict:
         raise ValueError("Payload must be an object")
+    if action == "sweep-solve" and set(payload) == {"training"}:
+        from .coherent import solve_sweep
+
+        return solve_sweep(payload["training"])
+    if action == "sweep-evaluate" and set(payload) == {"training", "validation"}:
+        from .coherent import evaluate_sweep
+
+        return evaluate_sweep(payload["training"], payload["validation"])
+    if action == "sweep-validate" and "training" in payload and not set(payload) - {"training", "validation"}:
+        from .coherent import validate_sweep_inputs
+
+        return validate_sweep_inputs(payload["training"], payload.get("validation"))
+    if action == "sweep-export":
+        from .coherent_export import export_sweep
+
+        return {"zip_base64": base64.b64encode(export_sweep(payload)).decode("ascii")}
     if action == "simulate" and set(payload) == {"scene"}:
         from .simulation import simulate
 
