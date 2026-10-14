@@ -39,5 +39,9 @@ jobs:
           python -m venv --system-site-packages /tmp/phaseglass-installed
           /tmp/phaseglass-installed/bin/python -m pip install --no-deps --ignore-installed dist/*.whl
           cd /tmp
+          /tmp/phaseglass-installed/bin/caustryn --help > /tmp/caustryn-help.txt
+          /tmp/phaseglass-installed/bin/phaseglass --help > /tmp/phaseglass-help.txt
+          cmp /tmp/caustryn-help.txt /tmp/phaseglass-help.txt
+          /tmp/phaseglass-installed/bin/python -c 'from importlib.metadata import distribution; d=distribution("phaseglass"); e={x.name:x.value for x in d.entry_points if x.group=="console_scripts"}; assert e["caustryn"]==e["phaseglass"]=="phaseglass.cli:main"; assert d.version=="0.2.1"; from phaseglass.resources import resource_root; r=resource_root(); assert "<title>Caustryn" in (r/"studio/index.html").read_text(); assert "<title>Caustryn" in (r/"studio/sweep.html").read_text()'
           /tmp/phaseglass-installed/bin/python -c 'from phaseglass.resources import resource_root; from phaseglass import solve; import json; r=resource_root(); assert (r/"studio/sweep.js").is_file(); p=json.loads((r/"examples/measurements/mirror-profiled.json").read_text()); assert solve(p)["candidate_count"]==2'
           /tmp/phaseglass-installed/bin/python "${GITHUB_WORKSPACE}/tools/verify_coherent_installed.py"

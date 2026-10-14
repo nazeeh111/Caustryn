@@ -1,4 +1,4 @@
-// Phaseglass original browser studio. MIT. No runtime external dependencies.
+// Caustryn original browser studio. MIT. No runtime external dependencies.
 import { SceneViewer, drawSignalPlot } from "./viewer.js";
 
 const $ = (id) => document.getElementById(id);

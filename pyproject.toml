@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phaseglass"
-version = "0.2.0"
+version = "0.2.1"
 description = "Find competing radio-scattering locations and design measurements that distinguish them"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -13,10 +13,11 @@ dependencies = ["numpy>=2.3.5,<3", "scipy>=1.18.1,<2"]
 keywords = ["inverse-problems", "radio", "simulation", "observability", "experiment-design"]
 
 [project.urls]
-Repository = "https://github.com/nazeeh111/Phaseglass"
-Issues = "https://github.com/nazeeh111/Phaseglass/issues"
+Repository = "https://github.com/nazeeh111/Caustryn"
+Issues = "https://github.com/nazeeh111/Caustryn/issues"
 
 [project.scripts]
+caustryn = "phaseglass.cli:main"
 phaseglass = "phaseglass.cli:main"
 
 [tool.setuptools]

@@ -115,7 +115,7 @@ if __name__ == "__main__":
         raise SystemExit(2)
 '''
 
-GUIDE = """# Phaseglass coherent portable experiment
+GUIDE = """# Caustryn coherent portable experiment
 
 This is synthetic/model-conditioned single-point radio evidence, not a hardware
 measurement, room reconstruction, pose tracker or certificate of coherence.
@@ -151,7 +151,7 @@ The runner
 checks these before importing calculation code. They detect changes against this
 manifest; they are not signatures or proof of authenticity.
 
-Actual Phaseglass source, MIT LICENSE, and THIRD_PARTY_NOTICES.md are included.
+Actual Caustryn source (the compatible phaseglass package), MIT LICENSE, and THIRD_PARTY_NOTICES.md are included.
 NumPy/SciPy are installed separately under their own licenses. Installing requires
 an available package source or local wheel cache; recalculation uses no network.
 No account, credential, paid API, telemetry or original scene is required.
