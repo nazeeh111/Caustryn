@@ -21,7 +21,7 @@ if __name__ == "__main__":
     raise SystemExit(main(["solve", str(root / "measurement.json"), *sys.argv[1:]]))
 '''
 
-GUIDE = """# Phaseglass portable experiment
+GUIDE = """# Caustryn portable experiment
 
 Simulation/model-conditioned evidence, not hardware sensing or pose estimation.
 

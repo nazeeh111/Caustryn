@@ -2,7 +2,7 @@
 import { SceneViewer } from "./viewer.js";
 const $ = (id) => document.getElementById(id);
 const state = { data: null, selected: 0, revision: 0 };
-const release = "https://github.com/nazeeh111/Phaseglass/releases/download/v0.2.0/";
+const release = "https://github.com/nazeeh111/Caustryn/releases/download/v0.2.0/";
 const viewer = new SceneViewer($("scene"), (index) => { state.selected = index; render(); });
 const fmt = (x, n = 3) => Number.isFinite(x) ? x.toFixed(n) : "not defined";
 const pct = (x) => Number.isFinite(x) ? (100*x).toFixed(2) + "%" : "not defined";

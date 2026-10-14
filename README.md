@@ -1,18 +1,20 @@
-# Phaseglass
+# Caustryn
 
-**One signal. More than one place.**
+**Find the locations that explain a radio signal. Move the receiver to challenge the answer.**
 
-Phaseglass is a radio observability studio: generate a complex radio signal,
-reconstruct the locations that can explain it, then design a receiver move that
-separates competing explanations. It makes inverse problems tangible: orbit the
-3D scene, inspect actual IQ, change the experiment, and rerun the inference.
+Caustryn makes radio inference visible: explore competing locations in 3D,
+inspect complex signal samples, and design a new measurement that separates
+them. Fit a receiver sweep, freeze the location and channel response, then
+predict positions the solver never saw. A convincing fit can still be wrong.
+
+[Explore three recorded experiments](https://nazeeh111.github.io/Caustryn/demo/) · [Install the local Studio](#install-and-run) · [Download a release](https://github.com/nazeeh111/Caustryn/releases)
 
 **Simulation only.** No hardware, neural checkpoint, account, cloud or paid API.
 This release models one idealized point scatterer, not a human body or room scan.
 
-## New: fit here, predict there
+## Fit here, predict there
 
-[Explore the three recorded experiments in your browser](https://nazeeh111.github.io/Phaseglass/demo/), then open **http://127.0.0.1:6365/sweep.html** after the installation below for new calculations. The public replay is read-only; the local workshop fits your inputs. A coherent
+[Explore the three recorded experiments in your browser](https://nazeeh111.github.io/Caustryn/demo/), then open **http://127.0.0.1:6365/sweep.html** after the installation below for new calculations. The public replay is read-only; the local workshop fits your inputs. A coherent
 receiver sweep uses known antenna positions to profile a separate unknown complex
 response for every antenna pair and frequency. Fit five positions, then predict
 two entire withheld configurations with the location and gains frozen.
@@ -36,25 +38,32 @@ small positive errors are not physical precision or a hardware benchmark.
 
 ![Actual Studio: two blind fitted locations from one simulated packet](docs/studio.png)
 
+These actual calculation screenshots predate the Caustryn name. Historical
+release assets, the `phaseglass` Python package and data formats retain
+their original names for compatibility. Both console commands remain available.
+
 ## Install and run
 
 ```sh
-git clone https://github.com/nazeeh111/Phaseglass.git
-cd Phaseglass
+git clone https://github.com/nazeeh111/Caustryn.git
+cd Caustryn
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.lock .
-phaseglass studio
+caustryn studio
 ```
 
 Open **http://127.0.0.1:6365/**. Python 3.12+; Windows activation is
 `.venv\Scripts\activate`. NumPy and SciPy are the only runtime dependencies. Version 0.2 requires Python 3.12+; the older 0.1 release retains its Python 3.10 support.
-Alternatively download the wheel from [Releases](https://github.com/nazeeh111/Phaseglass/releases).
+Use `caustryn` for new work. The existing `phaseglass` command calls the
+same implementation, so existing scripts and portable experiments continue to work.
+The Python distribution and imports remain `phaseglass`. This 0.2.1 identity
+release leaves the simulation models and solver unchanged. Alternatively download the wheel from [Releases](https://github.com/nazeeh111/Caustryn/releases).
 
 1. The initial experiment returns two compatible positions with truth hidden.
 2. Choose **Find a receiver move**. The placement search compares their predicted
    signals after allowing an unknown constant complex gain on each link.
-3. Apply the move. Phaseglass changes one receiver, generates a **new** packet,
+3. Apply the move. Caustryn changes one receiver, generates a **new** packet,
    and solves again. The old measured IQ is never rewritten.
 4. Reveal simulated truth, then try **A convincing wrong answer**: an undeclared
    phase slope can produce an excellent fit several meters from the generator.
@@ -79,9 +88,9 @@ Alternatively download the wheel from [Releases](https://github.com/nazeeh111/Ph
 ## Blind CLI
 
 ```sh
-phaseglass solve examples/measurements/mirror-profiled.json --output fit.json
-phaseglass intervention examples/measurements/mirror-profiled.json --result fit.json --output move.json
-phaseglass export examples/measurements/mirror-profiled.json --output experiment.zip
+caustryn solve examples/measurements/mirror-profiled.json --output fit.json
+caustryn intervention examples/measurements/mirror-profiled.json --result fit.json --output move.json
+caustryn export examples/measurements/mirror-profiled.json --output experiment.zip
 # Extract the ZIP into a fresh directory, install its requirements, then:
 python rerun.py --output independently-rerun.json
 ```
@@ -89,14 +98,14 @@ python rerun.py --output independently-rerun.json
 Coherent training and held observations remain independent inputs:
 
 ```sh
-phaseglass sweep-solve examples/coherent/slope-counterfeit.training.json --output training-fit.json
-phaseglass sweep-evaluate examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output held-prediction.json
-phaseglass sweep-export examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output coherent-experiment.zip
+caustryn sweep-solve examples/coherent/slope-counterfeit.training.json --output training-fit.json
+caustryn sweep-evaluate examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output held-prediction.json
+caustryn sweep-export examples/coherent/slope-counterfeit.training.json --validation examples/coherent/slope-counterfeit.validation.json --output coherent-experiment.zip
 # Extract into a new folder; install requirements.lock, then run:
 python rerun.py --output independently-predicted.json
 ```
 
-`phaseglass simulate scene.json` emits `{measurement, truth}` with the two kept
+`caustryn simulate scene.json` emits `{measurement, truth}` with the two kept
 separate. `solve` takes the measurement object alone. Outputs never overwrite an
 existing file. [Measurement schema](docs/MEASUREMENTS.md) and
 [model/search contract](docs/MODEL.md) explain custom input and its limits.

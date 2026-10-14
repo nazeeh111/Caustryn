@@ -1,4 +1,4 @@
-# Phaseglass: radio observability studio
+# Caustryn: radio observability studio
 
 Build an original simulation and inverse experiment laboratory, inspired by the user's interest in WiFi 3D projects. No inherited project source or evidence is presented as our work. All shipped evidence is generated and independently evaluated here. Simulation is visible throughout the product. No hardware capture, body-pose estimation, real-world centimeter accuracy, invented algorithm or universal uniqueness claim.
 

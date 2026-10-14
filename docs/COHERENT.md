@@ -1,6 +1,6 @@
 # Coherent receiver sweeps
 
-A single receiver configuration cannot identify a point when its complex hardware response is independently unknown at every antenna pair and frequency. A coherent sweep adds known receiver positions while requiring that response to remain fixed across them. Phaseglass fits the location by eliminating those response coefficients analytically, then predicts separate held receiver configurations without refitting or choosing a mode from their IQ.
+A single receiver configuration cannot identify a point when its complex hardware response is independently unknown at every antenna pair and frequency. A coherent sweep adds known receiver positions while requiring that response to remain fixed across them. Caustryn fits the location by eliminating those response coefficients analytically, then predicts separate held receiver configurations without refitting or choosing a mode from their IQ.
 
 This is a **single-point simulation and inverse-design tool**. Receiver geometry, hardware indexing, stable response and the stationary point model are trusted assumptions. Good training and held residuals cannot certify those assumptions. No real CSI collection, hardware calibration, room reconstruction, physical precision or global uniqueness is established.
 
@@ -31,4 +31,4 @@ Found modes are retained around the best weighted residual, with delta 16.27 und
 
 ## Prior work
 
-Motion-derived radio apertures are established: [Wi-Vi](https://people.csail.mit.edu/fadel/wivi/design.html), [synthetic-aperture Wi-Fi imaging](https://arxiv.org/abs/1903.03895), and [X-AR](https://www.usenix.org/conference/nsdi23/presentation/boroushaki) use spatial samples or known motion in different hardware/target settings. [Magnitude-based multi-band phase retrieval](https://arxiv.org/abs/1903.02367) addresses hardware phase distortions by another route. This extension is an accessible falsifiable experiment inside Phaseglass, not an invention of synthetic aperture or an independently validated physical sensing system.
+Motion-derived radio apertures are established: [Wi-Vi](https://people.csail.mit.edu/fadel/wivi/design.html), [synthetic-aperture Wi-Fi imaging](https://arxiv.org/abs/1903.03895), and [X-AR](https://www.usenix.org/conference/nsdi23/presentation/boroushaki) use spatial samples or known motion in different hardware/target settings. [Magnitude-based multi-band phase retrieval](https://arxiv.org/abs/1903.02367) addresses hardware phase distortions by another route. This extension is an accessible falsifiable experiment inside Caustryn, not an invention of synthetic aperture or an independently validated physical sensing system.
