@@ -23,9 +23,11 @@ two entire withheld configurations with the location and gains frozen.
   simulated point; known receiver motion distinguishes it.
 - **Keep both reflections.** Coplanar geometry retains two modes, each with its
   own unchanged held-position prediction.
-- **A wrong scene can still pass.** Deliberately changing the response can
-  counterfeit another location and pass both checks. Stable hardware response
-  remains a trusted assumption, not a conclusion from residuals.
+- **A wrong scene can still pass.** [Open the exact-counterfeit
+  case](https://nazeeh111.github.io/Caustryn/demo/?case=exact-counterfeit).
+  Deliberately changing the response can counterfeit another location and pass
+  both checks. Reveal synthetic truth in the viewer to see the distance. Stable
+  hardware response remains a trusted assumption, not a conclusion from residuals.
 - **Change the packets and take the proof.** Strict training/held editors,
   stale-result guards, cancellation, actual IQ prediction plots, optional
   separate simulation context, and source-bearing portable reruns.

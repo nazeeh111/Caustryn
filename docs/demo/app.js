@@ -97,5 +97,20 @@ async function load(entry) {
 $("pose-select").onchange=render;$("held-select").onchange=drawSignals;$("pair-select").onchange=drawSignals;
 $("reveal-truth").onchange=render;$("turn-left").onclick=()=>viewer.orbit(-.2);$("turn-right").onclick=()=>viewer.orbit(.2);$("reset-camera").onclick=()=>viewer.reset();
 window.addEventListener("resize",drawSignals);
-try{const response=await fetch("cases.json");if(!response.ok)throw Error("Case index unavailable");const entries=await response.json();const select=$("case-select");select.replaceChildren();entries.forEach(e=>select.add(new Option(e.title,e.id)));select.disabled=false;select.onchange=()=>load(entries.find(e=>e.id===select.value));await load(entries[0]);}
+try{
+  const response=await fetch("cases.json");if(!response.ok)throw Error("Case index unavailable");
+  const entries=await response.json(),select=$("case-select");
+  select.replaceChildren();entries.forEach(e=>select.add(new Option(e.title,e.id)));select.disabled=false;
+  select.onchange=()=>{
+    const entry=entries.find(e=>e.id===select.value);if(!entry)return;
+    const url=new URL(window.location.href);url.searchParams.set("case",entry.id);
+    window.history.replaceState(null,"",url);
+    load(entry);
+  };
+  const url=new URL(window.location.href),requested=url.searchParams.get("case");
+  const initial=entries.find(e=>e.id===requested)||entries[0];
+  if(requested!==null&&requested!==initial.id){url.searchParams.delete("case");window.history.replaceState(null,"",url);}
+  select.value=initial.id;
+  await load(initial);
+}
 catch(error){$("load-status").textContent=error.message+". Open this demo from a static web host.";}
