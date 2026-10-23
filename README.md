@@ -166,6 +166,6 @@ bounded to 20,000 grid positions and 8,000,000 coarse link-frequency-position ev
 No arbitrary command, local-file path or telemetry endpoint is accepted.
 
 MIT for the original application. [Dependency notices](THIRD_PARTY_NOTICES.md).
-Developed with Codex assistance. Contributions that improve numerical reliability,
+Contributions that improve numerical reliability,
 model transparency or reproducible radio experiments are welcome. If it helps
 you explain an inverse problem, a star helps others find it.
