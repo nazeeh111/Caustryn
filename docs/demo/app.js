@@ -18,14 +18,22 @@ function render() {
     truth: d.truth, showField: false });
   $("fit-summary").textContent = fit.candidates.length === 1 ? "One found mode, conditional on coherence" : `${fit.candidates.length} compatible modes remain`;
   $("fit-policy").textContent = `${d.training.rx_poses_m.length} training configurations · ${d.training.tx_m.length * d.training.rx_poses_m[0].length} hardware pairs · ${d.training.frequencies_hz.length} frequencies. Finite search; no global uniqueness claim.`;
-  $("mode-buttons").replaceChildren();
+  const modeButtons = $("mode-buttons");
   fit.candidates.forEach((mode, i) => {
-    const button = document.createElement("button"), title = document.createElement("strong"), info = document.createElement("small");
+    let button = modeButtons.children[i];
+    if (!button) {
+      button = document.createElement("button");
+      button.type = "button";
+      button.append(document.createElement("strong"), document.createElement("small"));
+      button.onclick = () => chooseMode(i);
+      modeButtons.append(button);
+    }
+    const [title, info] = button.children;
     title.textContent = `Mode ${i+1} · (${mode.position_m.map(x=>fmt(x)).join(", ")}) m`;
     info.textContent = `Training relative IQ residual ${pct(mode.relative_iq_residual)} · held compatible: ${held.candidates[i].compatible ? "yes, under assumptions" : "no"}`;
-    button.append(title, info); button.setAttribute("aria-pressed", String(state.selected === i));
-    button.onclick = () => chooseMode(i); $("mode-buttons").append(button);
+    button.setAttribute("aria-pressed", String(state.selected === i));
   });
+  while (modeButtons.children.length > fit.candidates.length) modeButtons.lastElementChild.remove();
   $("train-metric").textContent = fmt(candidate?.reduced_residual);
   $("held-metric").textContent = fmt(prediction?.reduced_residual);
   $("held-summary").textContent = `${held.compatible_candidate_count} / ${held.candidate_count} retained modes pass the recorded held diagnostic. No mode was selected or removed.`;
@@ -73,6 +81,7 @@ function drawSignals() {
 }
 async function load(entry) {
   const revision=++state.revision;$("reveal-truth").checked=false;$("reveal-truth").disabled=true;
+  if (state.data) render();
   $("load-status").textContent="Loading a frozen calculation. No inference is running in this page.";
   try{
     const response=await fetch(entry.file);if(!response.ok)throw Error(`Recorded data unavailable (${response.status}).`);
@@ -92,7 +101,11 @@ async function load(entry) {
     $("identities").textContent=`Canonical training SHA-256: ${data.result.fit.training_sha256}\nHeld packet is tied to that exact training identity. Optional truth is frozen synthetic context, never a fitting input.`;
     $("load-status").textContent="Frozen actual calculation loaded. Camera, configuration, modes and signal selection change only the view.";
     render();$("reveal-truth").disabled=false;
-  }catch(error){if(revision===state.revision)$("load-status").textContent=error.message+" Serve these files as static content; no solver service is needed.";}
+  }catch(error){if(revision===state.revision){
+    if(state.data) $("case-select").value=state.data.id;
+    $("reveal-truth").disabled=!state.data;
+    $("load-status").textContent=error.message+(state.data ? " Previous recorded experiment retained; synthetic truth is hidden. Choose another experiment to retry." : " Choose another experiment to retry. Serve these files as static content; no solver service is needed.");
+  }}
 }
 $("pose-select").onchange=render;$("held-select").onchange=drawSignals;$("pair-select").onchange=drawSignals;
 $("reveal-truth").onchange=render;$("turn-left").onclick=()=>viewer.orbit(-.2);$("turn-right").onclick=()=>viewer.orbit(.2);$("reset-camera").onclick=()=>viewer.reset();
