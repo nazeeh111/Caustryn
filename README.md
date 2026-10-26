@@ -12,6 +12,11 @@ predict positions the solver never saw. A convincing fit can still be wrong.
 **Simulation only.** No hardware, neural checkpoint, account, cloud or paid API.
 This release models one idealized point scatterer, not a human body or room scan.
 
+<picture>
+  <source media="(max-width: 600px)" srcset="docs/presentation-phone.png">
+  <img src="docs/presentation-desktop.png" alt="Current read-only Caustryn replay: known antenna geometry beside the recorded candidate and held-position diagnostics.">
+</picture>
+
 ## Fit here, predict there
 
 [Explore the three recorded experiments in your browser](https://nazeeh111.github.io/Caustryn/demo/), then open **http://127.0.0.1:6365/sweep.html** after the installation below for new calculations. The public replay is read-only; the local workshop fits your inputs. A coherent
