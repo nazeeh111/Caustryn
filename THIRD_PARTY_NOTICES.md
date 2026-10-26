@@ -1,12 +1,12 @@
 # Dependencies and provenance
 
-Phaseglass application, forward model, inverse search, studio and experiment
-fixtures are original MIT code developed with Codex assistance. No third-party
-WiFi application source, trained weights or empirical measurements are bundled.
+Caustryn application, forward model, inverse search, studio and experiment
+fixtures are original MIT code. No third-party WiFi application source, trained
+weights or empirical measurements are bundled.
 
 NumPy and SciPy are separately installed dependencies. Both use BSD licenses;
 their installed distributions contain their complete licenses and notices for
-bundled numerical libraries. Phaseglass does not relicense them.
+bundled numerical libraries. Caustryn does not relicense them.
 
 The mechanisms are established mathematical techniques: bistatic path length,
 complex least squares, profiling nuisance gains, finite initialization search,

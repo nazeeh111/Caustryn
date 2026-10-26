@@ -172,5 +172,4 @@ No arbitrary command, local-file path or telemetry endpoint is accepted.
 
 MIT for the original application. [Dependency notices](THIRD_PARTY_NOTICES.md).
 Contributions that improve numerical reliability,
-model transparency or reproducible radio experiments are welcome. If it helps
-you explain an inverse problem, a star helps others find it.
+model transparency or reproducible radio experiments are welcome.
