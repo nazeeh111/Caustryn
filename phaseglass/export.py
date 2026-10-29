@@ -61,7 +61,6 @@ def export_zip(request):
         "README.md": GUIDE.encode(),
         "requirements.txt": b"numpy==2.3.5\nscipy==1.18.1\n",
         "LICENSE": (root / "LICENSE").read_bytes(),
-        "THIRD_PARTY_NOTICES.md": (root / "THIRD_PARTY_NOTICES.md").read_bytes(),
     }
     for source in sorted(Path(__file__).parent.glob("*.py")):
         files["phaseglass/" + source.name] = source.read_bytes()

@@ -56,7 +56,7 @@ def main():
     if type(checksums) is not dict or not checksums:
         raise ValueError("Checksum manifest must be a nonempty object")
     required = {"training.json", "result.json", "manifest.json", "rerun.py",
-                "requirements.lock", "LICENSE", "THIRD_PARTY_NOTICES.md",
+                "requirements.lock", "LICENSE",
                 "phaseglass/coherent.py", "phaseglass/cli.py", "phaseglass/__init__.py"}
     if not required <= set(checksums):
         raise ValueError("Checksum manifest omits required calculation files")
@@ -151,7 +151,7 @@ The runner
 checks these before importing calculation code. They detect changes against this
 manifest; they are not signatures or proof of authenticity.
 
-Actual Caustryn source (the compatible phaseglass package), MIT LICENSE, and THIRD_PARTY_NOTICES.md are included.
+Actual Caustryn source (the compatible phaseglass package), MIT LICENSE with dependency terms are included.
 NumPy/SciPy are installed separately under their own licenses. Installing requires
 an available package source or local wheel cache; recalculation uses no network.
 No account, credential, paid API, telemetry or original scene is required.
@@ -181,8 +181,7 @@ def export_sweep(request):
     root = resource_root()
     files = {"training.json": encoded(training), "result.json": encoded(result),
              "rerun.py": RUNNER.encode(), "README.md": GUIDE.encode(),
-             "requirements.lock": LOCK, "LICENSE": (root / "LICENSE").read_bytes(),
-             "THIRD_PARTY_NOTICES.md": (root / "THIRD_PARTY_NOTICES.md").read_bytes()}
+             "requirements.lock": LOCK, "LICENSE": (root / "LICENSE").read_bytes()}
     package = Path(__file__).resolve().parent
     for source in sorted(package.glob("*.py")):
         if source.is_symlink() or not source.resolve().is_relative_to(package):

@@ -170,6 +170,6 @@ and stops workers after 25 seconds or an observed client disconnect. Search is
 bounded to 20,000 grid positions and 8,000,000 coarse link-frequency-position evaluations.
 No arbitrary command, local-file path or telemetry endpoint is accepted.
 
-MIT for the original application. [Dependency notices](THIRD_PARTY_NOTICES.md).
+MIT for the original application. [License and dependency terms](LICENSE).
 Contributions that improve numerical reliability,
 model transparency or reproducible radio experiments are welcome.

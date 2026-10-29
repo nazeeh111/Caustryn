@@ -65,7 +65,8 @@ class CoherentExportContract(unittest.TestCase):
             self.assertEqual(json.loads(files[key + ".json"]), self.request[key])
         self.assertEqual(files["requirements.lock"], b"numpy==2.3.5\nscipy==1.18.1\n")
         self.assertIn(b"Permission is hereby granted", files["LICENSE"])
-        self.assertIn(b"NumPy", files["THIRD_PARTY_NOTICES.md"])
+        self.assertIn(b"NumPy", files["LICENSE"])
+        self.assertNotIn("THIRD_PARTY_NOTICES.md", files)
         for source in Path(coherent_export.__file__).parent.glob("*.py"):
             self.assertEqual(files["phaseglass/" + source.name], source.read_bytes())
         manifest = json.loads(files["manifest.json"])
@@ -184,7 +185,6 @@ class CoherentExportContract(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "LICENSE").write_bytes(b"x" * (4*1024*1024))
-            (root / "THIRD_PARTY_NOTICES.md").write_text("test oversized resource")
             with patch.object(coherent_export, "resource_root", return_value=root):
                 with self.assertRaisesRegex(ValueError, "contents exceed 4 MiB"):
                     coherent_export.export_sweep({"training": self.request["training"]})

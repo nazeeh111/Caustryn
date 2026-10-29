@@ -17,8 +17,7 @@ class BuildResources(build_py):
                 dirs_exist_ok=True,
                 ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
             )
-        for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
-            shutil.copy2(root / name, target / name)
+        shutil.copy2(root / "LICENSE", target / "LICENSE")
 
 
 setup(cmdclass={"build_py": BuildResources})
