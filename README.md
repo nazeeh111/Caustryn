@@ -1,8 +1,8 @@
-# Caustryn
+# PhaseGlass
 
 **Find the locations that explain a radio signal. Move the receiver to challenge the answer.**
 
-Caustryn makes radio inference visible: explore competing locations in 3D,
+PhaseGlass makes radio inference visible: explore competing locations in 3D,
 inspect complex signal samples, and design a new measurement that separates
 them. Fit a receiver sweep, freeze the location and channel response, then
 predict positions the solver never saw. A convincing fit can still be wrong.
@@ -14,7 +14,7 @@ This release models one idealized point scatterer, not a human body or room scan
 
 <picture>
   <source media="(max-width: 600px)" srcset="docs/presentation-phone.png">
-  <img src="docs/presentation-desktop.png" alt="Current read-only Caustryn replay: known antenna geometry beside the recorded candidate and held-position diagnostics.">
+  <img src="docs/presentation-desktop.png" alt="Recorded radio replay: known antenna geometry beside the recorded candidate and held-position diagnostics.">
 </picture>
 
 ## Fit here, predict there
@@ -70,7 +70,7 @@ release leaves the simulation models and solver unchanged. Alternatively downloa
 1. The initial experiment returns two compatible positions with truth hidden.
 2. Choose **Find a receiver move**. The placement search compares their predicted
    signals after allowing an unknown constant complex gain on each link.
-3. Apply the move. Caustryn changes one receiver, generates a **new** packet,
+3. Apply the move. PhaseGlass changes one receiver, generates a **new** packet,
    and solves again. The old measured IQ is never rewritten.
 4. Reveal simulated truth, then try **A convincing wrong answer**: an undeclared
    phase slope can produce an excellent fit several meters from the generator.
