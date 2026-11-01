@@ -16,7 +16,7 @@ function render() {
   viewer.set({ scene: { tx_m: d.training.tx_m, rx_m: rx, bounds_m: d.training.bounds_m },
     result: fit, selected: state.selected, showTruth: $("reveal-truth").checked,
     truth: d.truth, showField: false });
-  $("fit-summary").textContent = fit.candidates.length === 1 ? "One found mode, conditional on coherence" : `${fit.candidates.length} compatible modes remain`;
+  $("fit-summary").textContent = fit.candidates.length === 1 ? "One retained location" : `${fit.candidates.length} retained locations`;
   $("fit-policy").textContent = `${d.training.rx_poses_m.length} training configurations · ${d.training.tx_m.length * d.training.rx_poses_m[0].length} hardware pairs · ${d.training.frequencies_hz.length} frequencies. Finite search; no global uniqueness claim.`;
   const modeButtons = $("mode-buttons");
   fit.candidates.forEach((mode, i) => {
@@ -29,14 +29,14 @@ function render() {
       modeButtons.append(button);
     }
     const [title, info] = button.children;
-    title.textContent = `Mode ${i+1} · (${mode.position_m.map(x=>fmt(x)).join(", ")}) m`;
-    info.textContent = `Training relative IQ residual ${pct(mode.relative_iq_residual)} · held compatible: ${held.candidates[i].compatible ? "yes, under assumptions" : "no"}`;
+    title.textContent = `Mode ${i+1}: (${mode.position_m.map(x=>fmt(x)).join(", ")}) m`;
+    info.textContent = `IQ residual ${pct(mode.relative_iq_residual)}; held check ${held.candidates[i].compatible ? "passes" : "fails"}`;
     button.setAttribute("aria-pressed", String(state.selected === i));
   });
   while (modeButtons.children.length > fit.candidates.length) modeButtons.lastElementChild.remove();
   $("train-metric").textContent = fmt(candidate?.reduced_residual);
   $("held-metric").textContent = fmt(prediction?.reduced_residual);
-  $("held-summary").textContent = `${held.compatible_candidate_count} / ${held.candidate_count} retained modes pass the recorded held diagnostic. No mode was selected or removed.`;
+  $("held-summary").textContent = `${held.compatible_candidate_count} of ${held.candidate_count} modes pass the held check.`;
   const truthVisible = $("reveal-truth").checked;
   $("truth-evaluation").hidden = !truthVisible;
   if (truthVisible && candidate) {
@@ -55,10 +55,10 @@ function plot(canvas, frequencies, series, label) {
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(box.width*ratio); canvas.height = Math.round(box.height*ratio);
   ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,box.width,box.height);
-  const left = 55, top = 15, width = box.width-left-14, height = box.height-top-32;
+  const left = 55, top = 15, width = box.width-left-24, height = box.height-top-32;
   const finite = series.flatMap(s=>s.values).filter(Number.isFinite), maximum = Math.max(1e-18,...finite)*1.1;
   const first=frequencies[0],last=frequencies.at(-1), fx=(f)=>left+(f-first)/(last-first || 1)*width, fy=(v)=>top+height*(1-v/maximum);
-  ctx.font="9px ui-monospace,monospace";ctx.lineWidth=1;
+  ctx.font="12px ui-monospace,monospace";ctx.lineWidth=1;
   for(let i=0;i<4;i++){const value=maximum*i/3,y=fy(value);ctx.strokeStyle="#38505e77";ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(left+width,y);ctx.stroke();ctx.fillStyle="#9bb0bd";ctx.textAlign="right";ctx.fillText(value.toExponential(1),left-7,y+3);}
   for(let i=0;i<3;i++){const f=first+(last-first)*i/2;ctx.textAlign="center";ctx.fillText((f/1e9).toFixed(3),fx(f),box.height-13);}
   ctx.textAlign="right";ctx.fillText("GHz",box.width-14,box.height-1);ctx.textAlign="left";
@@ -82,7 +82,7 @@ function drawSignals() {
 async function load(entry) {
   const revision=++state.revision;$("reveal-truth").checked=false;$("reveal-truth").disabled=true;
   if (state.data) render();
-  $("load-status").textContent="Loading a frozen calculation. No inference is running in this page.";
+  $("load-status").textContent="Loading saved experiment…";
   try{
     const response=await fetch(entry.file);if(!response.ok)throw Error(`Recorded data unavailable (${response.status}).`);
     const data=await response.json();if(revision!==state.revision)return;
@@ -99,7 +99,7 @@ async function load(entry) {
     $("raw-download").href=entry.file;
     $("record").textContent=JSON.stringify(data.result,null,2);
     $("identities").textContent=`Canonical training SHA-256: ${data.result.fit.training_sha256}\nHeld packet is tied to that exact training identity. Optional truth is frozen synthetic context, never a fitting input.`;
-    $("load-status").textContent="Frozen actual calculation loaded. Camera, configuration, modes and signal selection change only the view.";
+    $("load-status").textContent="Recorded experiment ready.";
     render();$("reveal-truth").disabled=false;
   }catch(error){if(revision===state.revision){
     if(state.data) $("case-select").value=state.data.id;
