@@ -1718,3 +1718,27 @@ textarea {
     font-size: 10px;
   }
 }
+
+/* A readable instrument surface: geometry and model limits stay visible. */
+.status-strip { font-size: 12px; line-height: 1.5; }
+.stale-badge, .packet-label, .unit-label { font-size: 11px; }
+.toggle { font-size: 13px; }
+.toggle input { width: 17px; height: 17px; }
+.result-summary p, .intervention-panel p, .drawer-intro { font-size: 13px; }
+.candidate-heading, .candidate-coordinates, .metric-row, .metric-row > strong { font-size: 12px; }
+.candidate-coordinates small, .candidate-heading .residual { font-size: 11px; }
+.diagnostic-note, .truth-evaluation, .control-note, .falsifier-box p { font-size: 12px; }
+.diagnostic-note { color: #a8bac6; }
+.field-label, .input-grid label, .coordinate-head { font-size: 11px; }
+textarea, .advanced-json p { font-size: 12px; }
+.proposal-warning { font-size: 12px !important; color: #b4c9b9 !important; }
+@media (prefers-reduced-motion: reduce) {
+  button { transition: none; }
+  .status-dot.busy { animation: none; }
+}
+@media (max-width: 560px) {
+  .masthead { height: auto; min-height: 0; flex-wrap: wrap; gap: 10px 16px; padding: 14px; }
+  .header-actions { flex: 1 1 100%; margin-left: 0; min-width: 0; flex-wrap: wrap; justify-content: space-between; gap: 8px 14px; }
+  .header-actions .text-button { font-size: 12px; min-height: 36px; }
+  .simulation-badge { font-size: 10px; letter-spacing: .3px; }
+}

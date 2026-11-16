@@ -1,4 +1,4 @@
-# PhaseGlass
+# PhaseGlass RF
 
 **Find the locations that explain a radio signal. Move the receiver to challenge the answer.**
 
@@ -41,13 +41,13 @@ two entire withheld configurations with the location and gains frozen.
 All nine new cases are original simulations with exact supplied geometry. Their
 small positive errors are not physical precision or a hardware benchmark.
 
-![Actual coherent sweep: a training fit and unchanged held-position prediction](docs/coherent-studio.png)
+![Synthetic coherent sweep ranking two allowed receiver configurations; one is numerically distinguishable under the declared model](docs/phaseglass-rf-planner.jpg)
 
-![Actual Studio: two blind fitted locations from one simulated packet](docs/studio.png)
+The training-only ranking compares two supplied configurations against the retained mirror modes. The score is conditional on the point model and stable gains; it is not physical validation.
 
-These actual calculation screenshots predate the Caustryn name. Historical
-release assets, the `phaseglass` Python package and data formats retain
-their original names for compatibility. Both console commands remain available.
+![PhaseGlass RF studio showing two mirrored positions compatible with a synthetic radio packet](docs/phaseglass-rf-studio.jpg)
+
+Both images are actual local synthetic calculations in the current interface. Historical release assets, the `phaseglass` Python package and data formats retain their original names for compatibility. Both console commands remain available. [Product verification](docs/product-verification.md).
 
 ## Install and run
 
@@ -64,8 +64,7 @@ Open **http://127.0.0.1:6365/**. Python 3.12+; Windows activation is
 `.venv\Scripts\activate`. NumPy and SciPy are the only runtime dependencies. Version 0.2 requires Python 3.12+; the older 0.1 release retains its Python 3.10 support.
 Use `caustryn` for new work. The existing `phaseglass` command calls the
 same implementation, so existing scripts and portable experiments continue to work.
-The Python distribution and imports remain `phaseglass`. This 0.2.1 identity
-release leaves the simulation models and solver unchanged. Alternatively download the wheel from [Releases](https://github.com/nazeeh111/Caustryn/releases).
+The Python distribution and imports remain `phaseglass`. The historical 0.2.1 release predates the finite next-pose planner in this development source. Download published wheels from [Releases](https://github.com/nazeeh111/Caustryn/releases).
 
 1. The initial experiment returns two compatible positions with truth hidden.
 2. Choose **Find a receiver move**. The placement search compares their predicted
@@ -142,8 +141,17 @@ The tests exercise independent scalar geometry and complex arithmetic, separate
 blind subprocess reruns, adversarial model counterexamples, actual HTTP requests,
 input bounds, cancellation and exported source. To reproduce:
 
+Install the pinned development test runner, then run both test styles and the
+browser-control checks from the source checkout:
+
 ```sh
+python -m pip install 'pytest==9.2.0'
 python -m unittest discover -s tests -v
+python -m pytest -q
+node tests/studio-inputs.mjs studio/app.js
+node tests/sweep-controls.mjs studio/sweep.js
+node tests/plan-presentation.mjs studio/sweep.js
+node tests/sweep-plot.mjs studio/sweep.js
 python tools/replay_evidence.py --output evidence.json
 ```
 
@@ -173,3 +181,28 @@ No arbitrary command, local-file path or telemetry endpoint is accepted.
 MIT for the original application. [License and dependency terms](LICENSE).
 Contributions that improve numerical reliability,
 model transparency or reproducible radio experiments are welcome.
+
+### Plan a coherent next receiver configuration
+
+Supply a JSON array of 1–64 distinct allowed configurations, each a list of receiver
+coordinates in metres with the same receiver order as training. Then run:
+
+```sh
+phaseglass sweep-plan examples/coherent/mirror.training.json --allowed-poses allowed-poses.json
+phaseglass sweep-export examples/coherent/mirror.training.json --allowed-poses allowed-poses.json --output sweep.zip
+```
+
+The planner solves training afresh and reports its hash and the hash of the exact fit.
+It maximizes the worst pair's smaller directed increase in profiled squared residual,
+allowing a separate complex gain per pair and frequency to adjust across training
+and proposed positions. Scores are conditional predictions, not probabilities or
+power. Numerical no-separation is judged against a floating-point tolerance relative
+to the two modeled amplitudes, while the reported score remains in physical IQ units
+(or noise-normalized units). The ranking lists numerically distinguishable poses first,
+then orders each group by raw score. It recommends the highest-scoring distinguishable
+pose and reports no separation only when none pass the numerical gate. It refuses
+weak, mismatched, rank-deficient, and single-mode fits; a single
+found mode is not a uniqueness certificate. The finite allowed list is supplied by
+the user and is not checked for physical feasibility. Held observations do not enter
+planning. The portable ZIP includes the list and fresh plan and can recompute it
+with `python rerun.py --plan` under its documented dependency lock.

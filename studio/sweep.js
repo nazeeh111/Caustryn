@@ -9,6 +9,8 @@ function controls() {
   const usable = !!state.current && !state.pending && !state.busy;
   $("fit-button").disabled = !usable;
   $("predict-button").disabled = !usable || !state.fit || !state.current.validation;
+  $("plan-button").disabled = !usable || !state.fit;
+  $("allowed-poses").disabled = state.busy;
   $("sweep-export").disabled = !usable || !state.fit;
   $("sweep-save").disabled = !usable;
   $("cancel-sweep").hidden = !state.busy;
@@ -18,6 +20,7 @@ function controls() {
 }
 function invalidate(pending = true) {
   state.revision++; state.controller?.abort(); state.controller = null; state.busy = false;
+  $("plan-result").textContent = "";
   state.pending = pending; state.fit = null; state.held = null; state.selected = 0;
   render(); controls();
 }
@@ -69,11 +72,17 @@ async function job(action, body, complete) {
     if (revision === state.revision) { state.busy = false; state.controller = null; controls(); }
   }
 }
+function poseGuidance(training) {
+  const count = training.rx_poses_m[0].length;
+  return `Each candidate needs ${count} receiver ${count === 1 ? "coordinate" : "coordinates"} [x, y, z] in metres, in training order. Candidates must differ from each other and all training positions.`;
+}
 function setCurrent(example) {
+  $("plan-result").textContent = ""; $("allowed-poses").value = "";
   state.current = structuredClone(example); state.fit = null; state.held = null; state.selected = 0; state.pending = false;
   $("training-editor").value = JSON.stringify(example.training, null, 2);
   $("validation-editor").value = example.validation ? JSON.stringify(example.validation, null, 2) : "";
   $("case-description").textContent = example.description;
+  $("allowed-poses-hint").textContent = poseGuidance(example.training);
   $("reveal-truth").checked = false; $("include-context").checked = false;
   const view = $("pose-view"); view.replaceChildren();
   example.training.rx_poses_m.forEach((_, i) => view.add(new Option(`Training position ${i + 1}`, `t${i}`)));
@@ -136,10 +145,12 @@ function drawPrediction() {
   const predicted = prediction.predicted_iq;
   const series = [measured.real.flatMap(p=>p[0]),predicted.real.flatMap(p=>p[0]),measured.imag.flatMap(p=>p[0]),predicted.imag.flatMap(p=>p[0])];
   const maximum = Math.max(1e-12,...series.flat().map(Math.abs)), w=rect.width-68,h=rect.height-52;
+  const samplesPerPose = state.current.training.frequencies_hz.length;
   ctx.strokeStyle="#3b5363";ctx.beginPath();ctx.moveTo(48,16+h/2);ctx.lineTo(48+w,16+h/2);ctx.stroke();
   const colors=["#73d4df","#d6f87b","#f5ad75","#c49eef"];
-  series.forEach((values,j)=>{ctx.strokeStyle=colors[j];ctx.lineWidth=1.6;ctx.setLineDash(j%2?[5,3]:[]);ctx.beginPath();values.forEach((v,i)=>{const x=48+w*i/Math.max(1,values.length-1),y=16+h/2-v/maximum*h*.44;i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.setLineDash([])});
-  ctx.font="9px sans-serif";["Measured real","Predicted real","Measured imaginary","Predicted imaginary"].forEach((text,i)=>{ctx.fillStyle=colors[i];ctx.fillText(text, 12+(i%2)*Math.max(150,rect.width/2),rect.height-18+Math.floor(i/2)*12)});
+  series.forEach((values,j)=>{ctx.strokeStyle=colors[j];ctx.lineWidth=1.6;ctx.setLineDash(j%2?[5,3]:[]);ctx.beginPath();values.forEach((v,i)=>{const x=48+w*i/Math.max(1,values.length-1),y=16+h/2-v/maximum*h*.44;i % samplesPerPose ? ctx.lineTo(x,y) : ctx.moveTo(x,y)});ctx.stroke();ctx.setLineDash([])});
+  ctx.fillStyle="#a8bac6";ctx.font="10px sans-serif";ctx.fillText(maximum.toPrecision(2), 3, 16+h*.06);ctx.fillText((-maximum).toPrecision(2), 3, 16+h*.94);
+  ctx.font="11px sans-serif";["Measured real","Predicted real","Measured imaginary","Predicted imaginary"].forEach((text,i)=>{ctx.fillStyle=colors[i];ctx.fillText(text, 12+(i%2)*Math.max(150,rect.width/2),rect.height-18+Math.floor(i/2)*12)});
   const sigma = state.current.training.noise_std_per_component;
   const denominator = sigma || Math.sqrt(series[0].reduce((s,x,i)=>s+x*x+series[2][i]*series[2][i],0)/series[0].length);
   if (!(denominator > 0)) {
@@ -151,16 +162,68 @@ function drawPrediction() {
   const residualMax = Math.max(sigma?3:1e-6,...residualSeries.flat().map(Math.abs));
   const rw=residualRect.width-68,rh=residualRect.height-54;
   residualCtx.strokeStyle="#3b5363"; residualCtx.beginPath();residualCtx.moveTo(48,18+rh/2);residualCtx.lineTo(48+rw,18+rh/2);residualCtx.stroke();
-  residualSeries.forEach((values,i)=>{residualCtx.strokeStyle=colors[i*2];residualCtx.lineWidth=1.3;residualCtx.beginPath();values.forEach((v,j)=>{const x=48+rw*j/Math.max(1,values.length-1),y=18+rh/2-v/residualMax*rh*.44;j?residualCtx.lineTo(x,y):residualCtx.moveTo(x,y)});residualCtx.stroke()});
-  residualCtx.fillStyle="#a8bac6";residualCtx.font="9px sans-serif";
+  residualSeries.forEach((values,i)=>{residualCtx.strokeStyle=colors[i*2];residualCtx.lineWidth=1.3;residualCtx.beginPath();values.forEach((v,j)=>{const x=48+rw*j/Math.max(1,values.length-1),y=18+rh/2-v/residualMax*rh*.44;j % samplesPerPose ? residualCtx.lineTo(x,y) : residualCtx.moveTo(x,y)});residualCtx.stroke()});
+  residualCtx.fillStyle="#a8bac6";residualCtx.font="11px sans-serif";
   residualCtx.fillText(sigma?"(predicted − held) / supplied noise σ · components are not whitened":"Noiseless residual / held channel RMS amplitude",12,15);
   residualCtx.fillText(`Range ±${residualMax.toPrecision(3)} · cyan real / orange imaginary`,12,residualRect.height-8);
-  $("prediction-copy").textContent=`Mode ${state.selected+1} · all held positions, channel 0. Diagnostic reduced residual ${format(prediction.reduced_residual)}; ${prediction.compatible?"compatible under the declared model":"prediction mismatch"}. The lower trace uses supplied noise σ, not covariance whitening or confidence bounds. The scalar diagnostic propagates gain-estimation noise; fitted-position uncertainty is not calibrated. More channels are retained in the downloadable calculation.`;
+  $("prediction-copy").textContent=`Mode ${state.selected+1} · all held positions, channel 0. Diagnostic reduced residual ${format(prediction.reduced_residual)}; ${prediction.compatible?"compatible under the declared model":"prediction mismatch"}. The lower trace uses supplied noise σ, not covariance whitening or confidence bounds. The scalar diagnostic propagates gain-estimation noise; fitted-position uncertainty is not calibrated. Traces break between held positions; within each position samples follow frequency order. More channels are retained in the downloadable calculation.`;
+}
+function renderPlan(result) {
+  const panel = $("plan-result");
+  panel.replaceChildren();
+  const node = (tag, text, className = "") => {
+    const element = document.createElement(tag);
+    element.textContent = text;
+    if (className) element.className = className;
+    return element;
+  };
+  let heading, summary;
+  if (result.status === "recommended") {
+    heading = "Recommended pose";
+    summary = "Best of the supplied poses under the declared model. This is not a physical discrimination or uniqueness guarantee.";
+  } else if (result.status === "no-mode-separation") {
+    heading = "No numerical separation";
+    summary = "None of the supplied poses passed the numerical separation test for every retained pair.";
+  } else if (result.status === "refused-one-found-mode-conditional-coherence") {
+    heading = "Two or more found modes are needed";
+    summary = "The finite fit found one mode, so there is no pair to compare. This does not prove global uniqueness.";
+  } else if (result.status === "refused-weak-or-rank-deficient-mode") {
+    heading = "Modes are too weakly constrained to rank";
+    summary = "At least one retained mode failed the strength or local-rank check. Inspect the training fit before planning.";
+  } else {
+    heading = "This fit cannot be ranked";
+    summary = "The training fit did not meet the conditions for comparing modes. Inspect the fit diagnostics and exact status below.";
+  }
+  panel.append(node("h3", heading, "plan-heading"), node("p", summary, "plan-summary"));
+  if (result.ranked_poses.length) {
+    const list = document.createElement("ol");
+    list.className = "plan-list";
+    result.ranked_poses.forEach((row, index) => {
+      const item = document.createElement("li");
+      const flag = row.numerically_distinguishable === true ? "Numerically distinguishable" :
+        row.numerically_distinguishable === false ? "Numerically indistinguishable" : "Numerical status unavailable";
+      item.append(node("strong", `Pose ${index + 1} · ${flag}`));
+      item.append(node("span", `Receiver coordinates (m): ${JSON.stringify(row.rx_pose_m)}`, "plan-coordinates"));
+      item.append(node("span", `Worst-pair score (rounded): ${Number(row.worst_pair_score).toPrecision(5)} ${result.units}`, "plan-score"));
+      list.append(item);
+    });
+    panel.append(list);
+  }
+  panel.append(node("p", result.warning, "plan-warning"));
+  const details = document.createElement("details");
+  details.append(node("summary", "Plan data and provenance"));
+  details.append(node("pre", JSON.stringify({status:result.status,recommended_pose_m:result.recommended_pose_m,ranked_poses:result.ranked_poses,units:result.units,criterion:result.criterion,training_sha256:result.training_sha256,fit_sha256:result.fit_sha256,warning:result.warning},null,2)));
+  panel.append(details);
 }
 function save(data, name) { const blob=data instanceof Blob?data:new Blob([JSON.stringify(data,null,2)+"\n"],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),5000); }
-$("fit-button").onclick=()=>job("sweep-solve",payload(state.current,false),fit=>{state.fit=fit;state.held=null;state.selected=0;render();status("Training fit saved. Held observations have not been fitted or evaluated.")});
-$("predict-button").onclick=()=>job("sweep-evaluate",payload(state.current),result=>{state.fit=result.fit;state.held=result.validation;render();status("Fresh training-only fit frozen. Held positions predicted without refitting.")});
-$("sweep-export").onclick=()=>job("sweep-export",{...payload(state.current),...($("include-context").checked&&state.current.truth?{context:state.current.truth}:{})},blob=>{save(blob,"phaseglass-coherent-sweep.zip");status("Fresh calculation exported with source and independent packets.")});
+$("allowed-poses").addEventListener("input",()=>{
+  $("plan-result").textContent="";
+  if (state.busy) { state.revision++; state.controller?.abort(); state.controller=null; state.busy=false; controls(); status("Cancelled after allowed poses changed."); }
+});
+$("plan-button").onclick=()=>{let poses;try{poses=JSON.parse($("allowed-poses").value)}catch(e){status("Enter a valid allowed-poses JSON list.",true);return}$("plan-result").textContent="";job("sweep-plan",{training:state.current.training,allowed_poses_m:poses},result=>{renderPlan(result);status("Training-only planning complete.")})};
+$("fit-button").onclick=()=>{ $("plan-result").textContent=""; job("sweep-solve",payload(state.current,false),fit=>{state.fit=fit;state.held=null;state.selected=0;render();status("Training fit saved. Held observations have not been fitted or evaluated.")})};
+$("predict-button").onclick=()=>{ $("plan-result").textContent=""; job("sweep-evaluate",payload(state.current),result=>{state.fit=result.fit;state.held=result.validation;render();status("Fresh training-only fit frozen. Held positions predicted without refitting.")})};
+$("sweep-export").onclick=()=>{let poses;try{poses=$("allowed-poses").value.trim()?JSON.parse($("allowed-poses").value):null}catch(e){status("Enter valid allowed-poses JSON or clear it.",true);return}job("sweep-export",{...payload(state.current),...(poses?{allowed_poses_m:poses}:{}),...($("include-context").checked&&state.current.truth?{context:state.current.truth}:{})},blob=>{save(blob,"phaseglass-coherent-sweep.zip");status("Fresh calculation exported with source and independent packets.")})};
 $("sweep-save").onclick=()=>save(state.current.training,"phaseglass-training.json");
 $("cancel-sweep").onclick=()=>{state.revision++;state.controller?.abort();state.controller=null;state.busy=false;controls();status("Cancelled. No late result will replace this experiment.")};
 $("apply-packets").onclick=()=>{let draft;try{draft=readDraft()}catch(e){$("packet-error").textContent=e.message;status(e.message,true);return}job("sweep-validate",payload(draft),()=>{setCurrent({...draft,title:"Imported experiment",description:"Supplied observations and receiver positions. Provenance and coherence are not authenticated.",truth:null});status("Packets validated and applied. Run a new blind fit.")})};

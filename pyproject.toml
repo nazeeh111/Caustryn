@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "phaseglass"
-version = "0.2.1"
+version = "0.2.2.dev0"
 description = "Find competing radio-scattering locations and design measurements that distinguish them"
 readme = "README.md"
 requires-python = ">=3.12"

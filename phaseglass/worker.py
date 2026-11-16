@@ -12,6 +12,10 @@ def execute(request):
     action, payload = request["action"], request["payload"]
     if type(payload) is not dict:
         raise ValueError("Payload must be an object")
+    if action == "sweep-plan" and set(payload) == {"training", "allowed_poses_m"}:
+        from .coherent_plan import plan_sweep
+
+        return plan_sweep(payload["training"], payload["allowed_poses_m"])
     if action == "sweep-solve" and set(payload) == {"training"}:
         from .coherent import solve_sweep
 

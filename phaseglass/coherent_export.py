@@ -8,6 +8,7 @@ import zipfile
 
 from . import __version__
 from .coherent import evaluate_sweep, solve_sweep, training_hash
+from .coherent_plan import plan_sweep
 from .io import MAX_INPUT, decode, encoded
 from .resources import resource_root
 
@@ -48,6 +49,7 @@ def canonical(value):
 def main():
     parser = argparse.ArgumentParser(description="Verify and recompute the included blind coherent experiment")
     parser.add_argument("--output", help="New result JSON; existing files are never overwritten. Default: stdout.")
+    parser.add_argument("--plan", action="store_true", help="Recompute the training-only pose plan")
     args = parser.parse_args()
     if sys.implementation.name != "cpython" or sys.version_info < (3, 12):
         raise ValueError("This dependency lock requires CPython 3.12 or newer")
@@ -78,7 +80,8 @@ def main():
     if manifest.get("schema") != "phaseglass-coherent-portable-v1":
         raise ValueError("Unsupported portable schema")
     for key, filename in (("training", "training.json"), ("validation", "validation.json"),
-                          ("context", "context.json"), ("result", "result.json")):
+                          ("context", "context.json"), ("result", "result.json"),
+                          ("allowed_poses_m", "allowed_poses_m.json"), ("plan", "plan.json")):
         if key not in manifest["canonical_sha256"]:
             continue
         if filename not in checksums:
@@ -96,10 +99,14 @@ def main():
     # Import our own source first. Context/result are never inference arguments.
     sys.path.insert(0, str(root))
     from phaseglass.cli import main as cli_main
-    command = "sweep-evaluate" if "validation" in manifest["canonical_sha256"] else "sweep-solve"
+    command = "sweep-plan" if args.plan else ("sweep-evaluate" if "validation" in manifest["canonical_sha256"] else "sweep-solve")
+    if args.plan and "allowed_poses_m" not in manifest["canonical_sha256"]:
+        raise ValueError("No allowed poses in this bundle")
     arguments = [command, str(root / "training.json")]
     if command == "sweep-evaluate":
         arguments += ["--validation", str(root / "validation.json")]
+    if command == "sweep-plan":
+        arguments += ["--allowed-poses", str(root / "allowed_poses_m.json")]
     if args.output:
         output = Path(args.output)
         if output.exists() or output.is_symlink():
@@ -128,6 +135,8 @@ Omit --output to print new JSON to stdout. Existing outputs are refused. result.
 is the calculation freshly recomputed at export; the runner never reads it as fit
 input. A rerun may differ in elapsed seconds or minor numerical details.
 
+When present, allowed_poses_m.json and plan.json record a fresh training-only planning calculation.
+The planner can be replayed separately with `python rerun.py --plan`.
 training.json is the only fitting input. If supplied, validation.json describes
 known held receiver positions and IQ tied to the exact canonical training hash.
 The held evaluation fits training again, predicts every retained candidate with its
@@ -162,7 +171,7 @@ def export_sweep(request):
     """Export exact packets and fresh blind results, ignoring supplied results."""
     if type(request) is not dict or "training" not in request:
         raise ValueError("Coherent export requires training")
-    if set(request) - {"training", "validation", "context", "result"}:
+    if set(request) - {"training", "validation", "context", "result", "allowed_poses_m"}:
         raise ValueError("Unknown coherent export fields")
     try:
         raw = encoded(request)
@@ -178,10 +187,14 @@ def export_sweep(request):
     training = request["training"]
     result = (evaluate_sweep(training, request["validation"]) if "validation" in request
               else solve_sweep(training))
+    plan = plan_sweep(training, request["allowed_poses_m"]) if "allowed_poses_m" in request else None
     root = resource_root()
     files = {"training.json": encoded(training), "result.json": encoded(result),
              "rerun.py": RUNNER.encode(), "README.md": GUIDE.encode(),
              "requirements.lock": LOCK, "LICENSE": (root / "LICENSE").read_bytes()}
+    if plan is not None:
+        files["allowed_poses_m.json"] = encoded(request["allowed_poses_m"])
+        files["plan.json"] = encoded(plan)
     package = Path(__file__).resolve().parent
     for source in sorted(package.glob("*.py")):
         if source.is_symlink() or not source.resolve().is_relative_to(package):
@@ -190,6 +203,9 @@ def export_sweep(request):
             raise ValueError("Unsafe portable source filename")
         files["phaseglass/" + source.name] = source.read_bytes()
     identities = {"training": canonical_sha256(training), "result": canonical_sha256(result)}
+    if plan is not None:
+        identities["allowed_poses_m"] = canonical_sha256(request["allowed_poses_m"])
+        identities["plan"] = canonical_sha256(plan)
     for key in ("validation", "context"):
         if key in request:
             files[key + ".json"] = encoded(request[key])

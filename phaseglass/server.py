@@ -18,7 +18,7 @@ from .io import MAX_INPUT, decode, encoded
 from .resources import resource_root
 
 OPERATIONS = {
-    "/api/" + name: name for name in ("simulate", "solve", "intervention", "export", "sweep-solve", "sweep-evaluate", "sweep-validate", "sweep-export")
+    "/api/" + name: name for name in ("simulate", "solve", "intervention", "export", "sweep-plan", "sweep-solve", "sweep-evaluate", "sweep-validate", "sweep-export")
 }
 MAX_OUTPUT = 8 * 1024 * 1024
 WORKER_SECONDS = 25

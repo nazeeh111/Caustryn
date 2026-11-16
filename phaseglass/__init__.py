@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 """Caustryn: simulated radio observability, with blind bounded inversion."""
 
-__version__ = "0.2.1"
+__version__ = "0.2.2.dev0"
 
 from .simulation import simulate
 from .inverse import solve, suggest_intervention
