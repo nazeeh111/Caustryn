@@ -21,3 +21,6 @@
 .plan-result summary { cursor: pointer; font-size: 12px; color: var(--lime); }
 .plan-result pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 11px/1.55 var(--mono); max-height: 360px; overflow: auto; }
 @media(max-width:560px){ .scene-foot label,.scene-foot select,.packet-editors textarea { font-size: 12px; } }
+
+/* Text legends remain legible while plot lines keep their pose boundaries. */
+.plot-legend:not([hidden]){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 16px;margin:6px 12px 14px;font-size:12px;line-height:1.5}.plot-legend span:nth-child(1){color:#73d4df}.plot-legend span:nth-child(2){color:#d6f87b}.plot-legend span:nth-child(3){color:#f5ad75}.plot-legend span:nth-child(4){color:#c49eef}.prediction-wrap .plot-caption{font-size:12px;line-height:1.5;color:#becdd6;margin:10px 12px}

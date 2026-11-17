@@ -141,6 +141,7 @@ function drawPrediction() {
   const prediction = state.held?.candidates[state.selected], measured = state.current?.validation?.iq;
   const residualCanvas = $("residual-plot"), residualCtx = residualCanvas.getContext("2d"), residualRect = residualCanvas.getBoundingClientRect();
   residualCanvas.width = Math.round(residualRect.width*dpr); residualCanvas.height = Math.round(residualRect.height*dpr); residualCtx.setTransform(dpr,0,0,dpr,0,0); residualCtx.clearRect(0,0,residualRect.width,residualRect.height);
+  for (const id of ["prediction-legend", "prediction-range", "residual-heading", "residual-range"]) $(id).hidden = true;
   if (!prediction?.predicted_iq || !measured) { ctx.fillStyle="#8ca2b2"; ctx.font="12px sans-serif"; ctx.fillText("Fit first, then predict the held positions.", 16, 35); $("prediction-copy").textContent = "Measured and predicted IQ appear here after held-position evaluation. No held observations are used to refit or select a mode."; return; }
   const predicted = prediction.predicted_iq;
   const series = [measured.real.flatMap(p=>p[0]),predicted.real.flatMap(p=>p[0]),measured.imag.flatMap(p=>p[0]),predicted.imag.flatMap(p=>p[0])];
@@ -149,12 +150,13 @@ function drawPrediction() {
   ctx.strokeStyle="#3b5363";ctx.beginPath();ctx.moveTo(48,16+h/2);ctx.lineTo(48+w,16+h/2);ctx.stroke();
   const colors=["#73d4df","#d6f87b","#f5ad75","#c49eef"];
   series.forEach((values,j)=>{ctx.strokeStyle=colors[j];ctx.lineWidth=1.6;ctx.setLineDash(j%2?[5,3]:[]);ctx.beginPath();values.forEach((v,i)=>{const x=48+w*i/Math.max(1,values.length-1),y=16+h/2-v/maximum*h*.44;i % samplesPerPose ? ctx.lineTo(x,y) : ctx.moveTo(x,y)});ctx.stroke();ctx.setLineDash([])});
-  ctx.fillStyle="#a8bac6";ctx.font="10px sans-serif";ctx.fillText(maximum.toPrecision(2), 3, 16+h*.06);ctx.fillText((-maximum).toPrecision(2), 3, 16+h*.94);
-  ctx.font="11px sans-serif";["Measured real","Predicted real","Measured imaginary","Predicted imaginary"].forEach((text,i)=>{ctx.fillStyle=colors[i];ctx.fillText(text, 12+(i%2)*Math.max(150,rect.width/2),rect.height-18+Math.floor(i/2)*12)});
+  $("prediction-range").textContent = `Signal range ±${maximum.toPrecision(2)} · arbitrary units`;
+  $("prediction-range").hidden = false; $("prediction-legend").hidden = false;
   const sigma = state.current.training.noise_std_per_component;
   const denominator = sigma || Math.sqrt(series[0].reduce((s,x,i)=>s+x*x+series[2][i]*series[2][i],0)/series[0].length);
   if (!(denominator > 0)) {
-    residualCtx.fillStyle="#a8bac6";residualCtx.font="11px sans-serif";residualCtx.fillText("Noiseless channel has zero amplitude. Relative residual trace is undefined.",12,30);
+    $("residual-heading").textContent = "Noiseless channel has zero amplitude. Relative residual trace is undefined.";
+    $("residual-heading").hidden = false; residualCanvas.setAttribute("aria-label", "Relative residual trace is undefined because noise and held channel amplitude are zero.");
     $("prediction-copy").textContent=`Mode ${state.selected+1}: channel 0 has zero measured amplitude and declared noise is zero. Its relative trace is undefined; inspect the full-channel prediction evidence. Scalar diagnostic: ${format(prediction.reduced_residual)}.`;
     return;
   }
@@ -163,10 +165,11 @@ function drawPrediction() {
   const rw=residualRect.width-68,rh=residualRect.height-54;
   residualCtx.strokeStyle="#3b5363"; residualCtx.beginPath();residualCtx.moveTo(48,18+rh/2);residualCtx.lineTo(48+rw,18+rh/2);residualCtx.stroke();
   residualSeries.forEach((values,i)=>{residualCtx.strokeStyle=colors[i*2];residualCtx.lineWidth=1.3;residualCtx.beginPath();values.forEach((v,j)=>{const x=48+rw*j/Math.max(1,values.length-1),y=18+rh/2-v/residualMax*rh*.44;j % samplesPerPose ? residualCtx.lineTo(x,y) : residualCtx.moveTo(x,y)});residualCtx.stroke()});
-  residualCtx.fillStyle="#a8bac6";residualCtx.font="11px sans-serif";
-  residualCtx.fillText(sigma?"(predicted − held) / supplied noise σ · components are not whitened":"Noiseless residual / held channel RMS amplitude",12,15);
-  residualCtx.fillText(`Range ±${residualMax.toPrecision(3)} · cyan real / orange imaginary`,12,residualRect.height-8);
-  $("prediction-copy").textContent=`Mode ${state.selected+1} · all held positions, channel 0. Diagnostic reduced residual ${format(prediction.reduced_residual)}; ${prediction.compatible?"compatible under the declared model":"prediction mismatch"}. The lower trace uses supplied noise σ, not covariance whitening or confidence bounds. The scalar diagnostic propagates gain-estimation noise; fitted-position uncertainty is not calibrated. Traces break between held positions; within each position samples follow frequency order. More channels are retained in the downloadable calculation.`;
+  residualCanvas.setAttribute("aria-label", sigma ? "Held complex residual components divided by the supplied noise standard deviation" : "Held complex residual components divided by held channel RMS amplitude");
+  $("residual-heading").textContent = sigma ? "(predicted − held) / supplied noise σ · components are not whitened" : "Noiseless residual / held channel RMS amplitude";
+  $("residual-range").textContent = `Range ±${residualMax.toPrecision(3)} · cyan real / orange imaginary`;
+  $("residual-heading").hidden = false; $("residual-range").hidden = false;
+  $("prediction-copy").textContent=`Mode ${state.selected+1} · all held positions, channel 0. Diagnostic reduced residual ${format(prediction.reduced_residual)}; ${prediction.compatible?"compatible under the declared model":"prediction mismatch"}. ${sigma ? "The lower trace uses supplied noise σ, not covariance whitening or confidence bounds." : "The lower trace uses held channel RMS amplitude because supplied noise σ is zero; it is not a confidence bound."} The scalar diagnostic propagates gain-estimation noise; fitted-position uncertainty is not calibrated. Traces break between held positions; within each position samples follow frequency order. More channels are retained in the downloadable calculation.`;
 }
 function renderPlan(result) {
   const panel = $("plan-result");

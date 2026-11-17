@@ -2,6 +2,8 @@
 """Strict bounded JSON and no-clobber artifact writing."""
 
 import json
+import os
+import secrets
 from pathlib import Path
 
 MAX_INPUT = 2 * 1024 * 1024
@@ -63,6 +65,30 @@ def encoded(value):
 
 
 def write_new(path, data):
-    # Exclusive create preserves an existing artifact, including symlink targets.
-    with Path(path).open("xb") as handle:
-        handle.write(data)
+    """Publish complete bytes without replacing an existing path."""
+    path = Path(path)
+    stage = path.parent / (".phaseglass-" + secrets.token_hex(16))
+    identity = None
+    fd = os.open(stage, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o666)
+    try:
+        identity = os.fstat(fd)
+        with os.fdopen(fd, "wb", closefd=False) as handle:
+            handle.write(data)
+        os.link(stage, path)
+    finally:
+        try:
+            if identity is None:
+                try:
+                    identity = os.fstat(fd)
+                except OSError:
+                    pass
+            if identity is not None:
+                try:
+                    current = stage.lstat()
+                except FileNotFoundError:
+                    pass
+                else:
+                    if (current.st_dev, current.st_ino) == (identity.st_dev, identity.st_ino):
+                        os.unlink(stage)
+        finally:
+            os.close(fd)
