@@ -1,21 +1,14 @@
 # PhaseGlass RF
 
-**Find the locations that explain a radio signal. Move the receiver to challenge the answer.**
+**Fit a radio signal. Move the receiver. Keep the explanations that survive.** PhaseGlass RF makes complex-signal inference inspectable: known antenna geometry, competing point locations, frozen channel responses and prediction at positions excluded from fitting.
 
-PhaseGlass makes radio inference visible: explore competing locations in 3D,
-inspect complex signal samples, and design a new measurement that separates
-them. Fit a receiver sweep, freeze the location and channel response, then
-predict positions the solver never saw. A convincing fit can still be wrong.
+In the worked coplanar sweep, **two reflected locations predict the same unseen signals**. A proposed out-of-plane receiver move could distinguish them under the model. A separate changing-response counterfeit passes held prediction while **3.488 m from its simulated generator**. Passing a check does not prove the hardware-response assumption.
 
-[Explore three recorded experiments](https://nazeeh111.github.io/Caustryn/demo/) · [Install the local Studio](#install-and-run) · [Download a release](https://github.com/nazeeh111/Caustryn/releases)
+<picture><source media="(max-width: 600px)" srcset="docs/presentation/sweep-mobile.svg"><img src="docs/presentation/sweep.svg" alt="Actual coplanar antenna geometry with two reflected point explanations; both training-fitted responses predict all displayed withheld complex samples. A proposed out-of-plane receiver move is separate from measurements." width="100%"></picture>
 
-**Simulation only.** No hardware, neural checkpoint, account, cloud or paid API.
-This release models one idealized point scatterer, not a human body or room scan.
+[Follow the worked experiment](docs/presentation/README.md) · [Download its native portable replay](docs/presentation/ui-experiment.zip) · [Explore three recorded experiments](https://nazeeh111.github.io/Caustryn/demo/) · [Install the local Studio](#install-and-run)
 
-<picture>
-  <source media="(max-width: 600px)" srcset="docs/presentation-phone.png">
-  <img src="docs/presentation-desktop.png" alt="Recorded radio replay: known antenna geometry beside the recorded candidate and held-position diagnostics.">
-</picture>
+**Simulation only.** One idealized point scatterer, not a human body or room scan. No radio hardware, neural checkpoint, account, cloud or paid API. PhaseGlass RF is the current display name; **Caustryn URLs and the compatible `phaseglass` package remain unchanged**. [Historical release downloads](https://github.com/nazeeh111/Caustryn/releases).
 
 ## Fit here, predict there
 
@@ -48,6 +41,12 @@ The training-only ranking compares two supplied configurations against the retai
 ![PhaseGlass RF studio showing two mirrored positions compatible with a synthetic radio packet](docs/phaseglass-rf-studio.jpg)
 
 Both images are actual local synthetic calculations in the current interface. Historical release assets, the `phaseglass` Python package and data formats retain their original names for compatibility. Both console commands remain available. [Product verification](docs/product-verification.md).
+
+## The actual local sweep
+
+<img src="docs/presentation/workbench-desktop.png" alt="Current local PhaseGlass RF workbench after fitting the synthetic coplanar training packet and predicting two withheld receiver configurations, retaining both reflected locations." width="100%">
+
+[Phone view](docs/presentation/workbench-mobile.png) · [Raw calculation](docs/presentation/mirror.result.json) · [Earlier recorded presentation](docs/presentation/README.md#preserve-the-model-and-historical-context)
 
 ## Install and run
 
