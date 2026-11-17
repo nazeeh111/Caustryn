@@ -1,0 +1,20 @@
+{
+  "desktop": [
+    1440,
+    1050
+  ],
+  "mobile": {
+    "width": 375,
+    "isMobile": true,
+    "layoutWidth": 375,
+    "noOverflow": true
+  },
+  "mirrorModes": 2,
+  "actualUIExport": true,
+  "keyboardOrbitZoom": true,
+  "draftInvalidatesExport": true,
+  "invalidDraftRetainedForCorrection": true,
+  "cancelAndRefit": true,
+  "freshBrowserPacketImportAndPredict": true,
+  "errors": []
+}

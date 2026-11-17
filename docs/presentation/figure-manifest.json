@@ -1,0 +1,33 @@
+{
+  "source_commit": "fca0aa39e29870b3a9fba2358866d8932d6bfab0",
+  "source_tree": "96549e2df5b6871cc94e72da10f5c2eab6a94bd5",
+  "encoding": "All training and held receiver coordinates and found modes in equal-scale XY metres; channel0 all32 real/32 imaginary samples with frozen predictions and breaks between configurations. Synthetic current-main cases and conditional proposed geometry; no hardware claim.",
+  "files": {
+    "README.md": "e50593c969a999f7f3f606da4270b7259a8eea1ba208ddc12b2ba9092d51319e",
+    "allowed-poses.json": "8afc1429422391731eed6c352da4a0c30f98e212d9aedc40560e670e39289563",
+    "browser.json": "49168a98f62c897b23a75974c7a9ac41d9733c49338793035ff3eaf1ee301212",
+    "exact-counterfeit.result.json": "9140e095cfc7b657936e5f1a8ce07da7c40684cd54998a23410a60a9bff40a66",
+    "exact-counterfeit.training.json": "b2e6a1afbe38479d882abb831884ed5705cf88021649b16a3a80913296fe7d90",
+    "exact-counterfeit.truth.json": "3729ed937e221ae12bfa1d1307a2f6d0a2b12035998cd83a2c861fabe969d3e8",
+    "exact-counterfeit.validation.json": "d47d98b0a8257c67c15a06e96f0506dac68af6bfb124f996b2678769e300912d",
+    "figure-data.json": "0b5b536db90218b4ecb0ecd6ae78a239e3878f2f78855f34828ed23e6e18b361",
+    "figure.py": "a38618d830e29ff533533e5311de3f8c943a5979106ffcfaaba08798174bdf9b",
+    "mirror-experiment.zip": "621b2862a8a4b2279940cd3b635ec96dc716f4e0e8e655de1e0faff4d19677a6",
+    "mirror.result.json": "2d5fe896bb5634726b44e4bec11509288ad755ef4012351b5c87afb47c43b5f6",
+    "mirror.training.json": "de5776082a0d21961cdf4445f41935a3fdf8fb7602c0a0bf9c241fdb34536639",
+    "mirror.truth.json": "c70a3f55ba9643f1fc33d1adbe0de732cca5c6bc45cf848b0d6dde9b30143529",
+    "mirror.validation.json": "c7dbcc96e9c38289d45efdb3d0bd8b55f77e6773d991ac08f7e03c37c09f5a42",
+    "plan.json": "9b97868f466da7b9263e3a9b7a323e07e682f4b5816fb3c7c688343c4b84f33f",
+    "slope-counterfeit.result.json": "e452e1d1b037a6108d52a702762241443863fdd7dbe1280f16ac67953d27d060",
+    "slope-counterfeit.training.json": "0ffad05aaaae5d912ae5ef7a1fcddf4fdc8acba0d0c63afd3d1c3764a6e85f7c",
+    "slope-counterfeit.truth.json": "a7cb1ff0d8da2f2ad5758778d653ead16a796e02d32c5608f8db946e19c497a7",
+    "slope-counterfeit.validation.json": "d23c260d564d4d70976f18401bcb920ca27509ed8523490dd4552705c92416e4",
+    "sweep-mobile.png": "9d8eb09d24b164e1b8d0bd9e40330648405ff557d5096ac080cbee87d085a9a0",
+    "sweep-mobile.svg": "9b6790b869dd99420c5411379c5c6815d35e21559c015a7fd5bfb0ef47587957",
+    "sweep.png": "5aa560c3615a2d8bced19fda65432d59b33ef5514a6180303452312f339f79e6",
+    "sweep.svg": "5e4aa4396b35563ddeb643f9abf70a371f1d3aa97f999ef5a896fee234ff5a0a",
+    "ui-experiment.zip": "c60ddc5d2f44009d34c05139f8e533a2a1e166b6bbdc0227ecb9fe88f1397931",
+    "workbench-desktop.png": "42bcd5b2f396aaf5821ccf3b5d0e971828a68d00cad89aa9c82506f287769f62",
+    "workbench-mobile.png": "8bfb07b3362a7a90a8bf17b112493ada37ff2050ba841f08f21292110134954c"
+  }
+}
