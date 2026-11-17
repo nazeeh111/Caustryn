@@ -112,7 +112,11 @@ python rerun.py --output independently-predicted.json
 
 `caustryn simulate scene.json` emits `{measurement, truth}` with the two kept
 separate. `solve` takes the measurement object alone. Outputs never overwrite an
-existing file. [Measurement schema](docs/MEASUREMENTS.md) and
+existing file. Files are staged beside the destination and published only after
+writing completes, using a create-only hard link. The filesystem must support
+hard links. A crash can leave a temporary `.phaseglass-` file; an error after
+publication can leave a complete destination file. This is not a power-loss
+durability guarantee. [Measurement schema](docs/MEASUREMENTS.md) and
 [model/search contract](docs/MODEL.md) explain custom input and its limits.
 
 ## Mechanism, not a skeleton animation
