@@ -1,14 +1,16 @@
-# PhaseGlass RF
+# PhaseGlass RF · Caustryn
 
-**Fit a radio signal. Move the receiver. Keep the explanations that survive.** PhaseGlass RF makes complex-signal inference inspectable: known antenna geometry, competing point locations, frozen channel responses and prediction at positions excluded from fitting.
+Caustryn is the repository for PhaseGlass RF, a simulated radio-location experiment. In its recorded antenna sweep, two different locations give the same predictions at positions held out of the fit.
 
-In the worked coplanar sweep, **two reflected locations predict the same unseen signals**. A proposed out-of-plane receiver move could distinguish them under the model. A separate changing-response counterfeit passes held prediction while **3.488 m from its simulated generator**. Passing a check does not prove the hardware-response assumption.
+[Open the recorded study](https://nazeeh111.github.io/Caustryn/demo/) · [Read the experiment and assumptions](docs/presentation/README.md)
 
 <picture><source media="(max-width: 600px)" srcset="docs/presentation/sweep-mobile.svg"><img src="docs/presentation/sweep.svg" alt="Actual coplanar antenna geometry with two reflected point explanations; both training-fitted responses predict all displayed withheld complex samples. A proposed out-of-plane receiver move is separate from measurements." width="100%"></picture>
 
-[Follow the worked experiment](docs/presentation/README.md) · [Download its native portable replay](docs/presentation/ui-experiment.zip) · [Explore three recorded experiments](https://nazeeh111.github.io/Caustryn/demo/) · [Install the local Studio](#install-and-run)
+[View the archived replay](docs/presentation/ui-experiment.zip) · [Install the local Studio](#install-and-run)
 
-**Simulation only.** One idealized point scatterer, not a human body or room scan. No radio hardware, neural checkpoint, account, cloud or paid API. PhaseGlass RF is the current display name; **Caustryn URLs and the compatible `phaseglass` package remain unchanged**. [Historical release downloads](https://github.com/nazeeh111/Caustryn/releases).
+The saved signals come from a simulation of one idealized point scatterer. The Studio runs locally without radio hardware, model weights, a cloud service or an account. Install it under the Python package name `phaseglass`. [Historical releases](https://github.com/nazeeh111/Caustryn/releases)
+
+A proposed out-of-plane receiver move could distinguish them under the model. A separate changing-response counterfeit passes held prediction while **3.488 m from its simulated generator**. Passing a check does not prove the hardware-response assumption.
 
 ## Fit here, predict there
 
